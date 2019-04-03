@@ -1,67 +1,75 @@
-# Walkable
-Home Search On the Go. Powered by Augmented Reality x Zoopla
+# Headsup
+Neighborhood Explorer On the Go. Powered by Augmented Reality
 
 
 Front-end User Feature List - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Non-AR features:
-* Search listing of home available nearby through Zoopla API
-    * Configure Zoopla API
+* Search listing of venues available nearby through Foursquare API
+    * Configure Foursquare API
+      - finished with area search
 * Filter listing based on user inputed criteria
-    * Build user selection form
-    * Filter Zoopla API
-* Click to see listing details
-    * Render simple list
-* Save favoriates
+    * Build user selection form (only category filter for now)
+    * Filter Foursquare API
+* Click to see venue details
+    * Render venue details tab
+    * save favorites button
+* Check-in and review
     * Edit/create own record
-* Contact and reach out option  
-    * Add contact button
 
 AR:
 * Render search result accurately with viewable range and in accurate position
     * Import 3D marker from Google AR
     * Write camera function and render 3D marker
-    * AR SDK (maybe) 
-    * Calculate what’s within range and should be render
-    * Calculate size of render
+    * AR SDK (maybe)
+    * Calculate size and position of render
 * Provide indicator on direction of walk
     * Left or Right? Calculate based on list filter
     * Define area limit of the whole walk
+* Add new venue (personal tagging)
+    * Create personalize tags for friends only
 
 
 Backend Models - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 Classes and Models:
 * User
     * Name,  email address
-* Property
-    * Name, address, number of rooms, number of bathrooms, floor area, price, price unit, rent/sale, longitude, latitude
-* Search Criteria  
-    * Current location, area range, min max room, min max price, rent/sale, User ID
-* Search Result
-    * Area range, min max room, min max price, rent/sale, Search Criteria ID, Property ID
-* Favoriate
-    * Property ID, user ID
-* Photo gallery
-    * Property ID
-    *
+* Search setting
+    * Category filter, user ID
+* Favorites
+    * Foursquare ID, user ID
+* Reviews
+    * Foursquare ID, user ID, rating, price, comment
+* Venue (front-end)
+    * GEO: address, longitude, latitude, postal code
+    * Venue: name, Foursquare ID, venue type, visit count, rating, price tier, comment, one photo
+* Venue (own-tag, back-end)
+
+* Friend
+    * User id, user id
+
 Relationships
-* Property has many Photos
-* User has many Search Criteria
-* Search Criteria is many to many with Property, through Search Result
-* User has many Property through Favorite
-* User (theoretically) is many to many with Property through Searches (Criteria and Result), however this is a relationship that will not be built
+* User has a setting
+* User has many reviews
+* User has many favorites
+
+* User has many own venue (later)
 
 
 Project Management  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
+Available days:
+* Week 1: 0.5, 0.5, 0.5, 1, 1
+* Week 2: 1, ............, 1
+* Week 3: 1, 1, 0.5
 Timeline:
-* Non-AR features: 3 days
-* Connecting to backend: 1 day
+* Wireframe and planning, setups: 1 day
+* Non-AR features and connecting to back-end: 2 days
 * AR features: 3 days
-* AR add-on features: 1 day
-* Front-end improvement: 2 days
-* Presentation: 1 day
-* Refractor code and buffer : 3 days
+* AR add-on features (new venue): 1 day
+* Front-end improvement: 1.5 days
+* Presentation: 0.5 day
+* Refractor code and buffer : 2 days
 
 Key risks:
-* Quality of Zoopla API data return
+* Quality of Zoopla API data return (Exploded - switch to Foursquare)
 * Accuracy of AR rendering based on longitude and latitude
 * React Native being naughty and hard to pick up
