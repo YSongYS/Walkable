@@ -21,8 +21,9 @@ Headsup is a street explorer powered by Augmented Reality. With Headsup, you can
 
 **AR:**
 * Render info 3D
-    * √ Integrate AR SDK for 3D render
-    * (WIP) Integrate suitable 3D object library
+    * √ Integrate AR SDK
+    * √ Simple 3D render (text and basic geometries)
+    * Integrate suitable 3D object library
 * Pin result accurately in the right position with the right size
     * Write algorithm on what to show
     * ... where to show
@@ -42,12 +43,12 @@ Headsup is a street explorer powered by Augmented Reality. With Headsup, you can
     * Category filter, user ID
 * Favorites
     * Foursquare ID, user ID
-* Reviews
-    * Foursquare ID, user ID, rating, price, comment
 * Venue (front-end)
     * GEO: address, longitude, latitude, postal code
     * Venue: name, Foursquare ID, venue type, visit count, rating, price tier, comment, one photo
 * Venue (own-tag, back-end)
+* Reviews (no need)
+    * Foursquare ID, user ID, rating, price, comment
 
 * Friend
     * User id, user id
@@ -61,22 +62,25 @@ Headsup is a street explorer powered by Augmented Reality. With Headsup, you can
 
 Project Management  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 **Available working days:**
-* Week 1: 0.5, 1, 0.5, 1, 1
+* Week 1: 0.5, 1, 1, 1, 1
 * Week 2: 1, ............, 1
 * Week 3: 1, 1, 0.5
 **Timeline:**
 * Wireframe and planning, setups: 1 day (0)
-* Non-AR features and connecting to back-end: 2 days (2)
-* AR features: 3 days (2.5)
-* AR add-on features (new venue): 1 day (1)
+* Non-AR features and connecting to back-end: 2 days (0)
+* AR features: 3.5 days (2)
+* AR add-on features (new venue): 1.5 day (1.5)
 * Front-end improvement: 1.5 days (1.5)
 * Presentation: 0.5 day (0.5)
 * Refractor code and buffer : 2 days (2)
 
 **Key risks:**
 * Quality of Zoopla API data return
-    Zoopla API deprecated (without public announcement, how annoying). Going for Foursquare
+    * Zoopla API deprecated (without public announcement, how annoying)
+    * Going for Foursquare
 * AR package for render
-    React-native-ARkit (version issue, too many dependencies), ViroReact (too large of a package, required xcode mobile setup, and has to use its own testbed), Expo-three (dependency issue solved, now working)
+    * React-native-ARkit (version issue, too many dependencies)
+    * ViroReact (too large of a package, required xcode mobile setup, and has to use its own testbed)
+    * Expo-three (dependency issue solved, now working)
 * Accuracy of rendering based on longitude and latitude
 * React Native being naughty and hard to pick up
