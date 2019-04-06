@@ -1,16 +1,15 @@
 import React from 'react';
 import { View, StyleSheet, Text } from 'react-native';
-import VenueDetailCard from './../components/VenueDetailCard';
+import LoginForm from './../components/LoginForm';
 
 export default class CreateScreen extends React.Component {
   static navigationOptions = {
-    title: null,
+    header: null,
   };
 
   render() {
     return (
-      <View>
-        <VenueDetailCard />
+      <View style={styles.container}>
       </View>
     )
   }

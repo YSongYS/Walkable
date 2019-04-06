@@ -9,16 +9,19 @@ import API from './API'
 export default class VenueListCard extends React.Component {
 
   state = {
-    name:'Hopper',
-    category:'Coffee shop',
-    price:5,
-    rating:2.0,
+    foursquareID:this.props.foursquareID,
+    name:'',
+    category:'',
+    price:0,
+    rating:0.0,
     reviews:0,
-    distance:10,
-    address:'4 Roger St, London',
+    distance:0,
+    address:'',
     photo:'http://www.tourniagara.com/wp-content/uploads/2014/10/default-img.gif',
-    detailedCard:{},
-    loading:true
+    openingHours:[],
+    likes:0,
+    tips:[],
+    loading:true,
   }
 
   componentDidMount(){
@@ -32,13 +35,19 @@ export default class VenueListCard extends React.Component {
         rating:(!!venueInfo.rating && venueInfo.rating)/8*5,
         distance:10,
         address:venueInfo.location.address,
-        photo:!!venueInfo.photos.groups[1]? `${venueInfo.photos.groups[1].items[0].prefix}300x500${venueInfo.photos.groups[1].items[0].suffix}`:this.state.photo
-      },console.log(this.state))})
+        photo:!!venueInfo.photos.groups[1]? `${venueInfo.photos.groups[1].items[0].prefix}300x500${venueInfo.photos.groups[1].items[0].suffix}`:this.state.photo,
+        openingHours:venueInfo.hours && venueInfo.hours.timeframes,
+        likes:venueInfo.likes.count,
+        tips:venueInfo.tips.groups[0].items
+      },()=>this.setState({loading:false}))})
   }
 
   render() {
     return (
       <Card>
+      {this.state.loading?
+        <Text>Loading...</Text>
+        :
         <View style={styles.cardContentContainer}>
           <View style={styles.cardImageContainer}>
           <Avatar rounded source={{uri: this.state.photo}}
@@ -46,14 +55,19 @@ export default class VenueListCard extends React.Component {
           </View>
           <View style={styles.cardWordsContainer}>
             <View style={styles.titleNPriceContainer}>
-              <Text style={styles.venueNameText}> {this.state.name}</Text>
-              <Icon name='heart' color={Colors.heartColor} type='font-awesome' size={18}/>
+              <TouchableOpacity onPress={()=>{this.props.showVenue(this.state)}}>
+                <Text style={styles.venueNameText}> {this.state.name}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={()=>this.props.toggleLike(this.props.foursquareID)}>
+                <Icon name='heart' color={this.props.userliked? Colors.heartColor: Colors.tabIconDefault} type='font-awesome' size={18}/>
+              </TouchableOpacity>
             </View>
             <Text style={styles.venueCategoryText}> {this.state.category} ({"£".repeat(this.state.price)})</Text>
             <Rating readonly ratingCount={5} fractions={1} startingValue={this.state.rating} imageSize={18} style={styles.ratingStyle}/>
             <Text style={styles.venueAddressText}> {this.state.distance}m | {this.state.address} </Text>
           </View>
         </View>
+      }  
       </Card>
     )
   }

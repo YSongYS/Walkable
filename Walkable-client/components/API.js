@@ -1,5 +1,6 @@
-const client_id = "BRVTREXC14M4LQBIHPC1QHENPTYM4W2FTO0ODJHKD21WKLZ3"
-const client_secret = "ART21GNEGJS51MELACSULCH2GUSICZGPNQPPNS5VCOSRLYG5"
+const client_id = "5K2PO0TCBUH5ZKRLQQVZVYOV21JQSUVJ44T35142BHVUFKUI"
+const client_secret = "GIZVTNTL3HOXRFIUDPT1O050GBPCKF3ZRPI3RMS5L0T4JD1M"
+const base_url = 'http://localhost:3000'
 
 const searchNearby = (lon, lat, radius, limit) =>{
   const baseURL= "https://api.foursquare.com/v2/venues/search?"
@@ -30,7 +31,48 @@ const getVenueDetail = (id) =>{
     .then(res=>res.json())
 }
 
+const signUp = (userInfo) => {
+  const url = base_url + '/users'
+  const options = {
+     method: 'POST',
+     headers: {
+       'Content-Type': 'application/json',
+       Accept: 'application/json'
+     },
+     body: JSON.stringify(userInfo)
+  }
+
+  return fetch(url, options)
+    .then(res => res.json())
+}
+
+const logIn = (userInfo) => {
+  const url = base_url + '/users/login'
+  const options = {
+     method: 'POST',
+     headers: {
+       'Content-Type': 'application/json',
+       Accept: 'application/json'
+     },
+     body: JSON.stringify(userInfo)
+  }
+
+  return fetch(url, options)
+    .then(res => res.json())
+}
+
+const getFavorites = (user_id) => {
+  const url = base_url + `/users/${user_id}/favorites`
+
+  return fetch(url)
+    .then(res => res.json())
+}
+
+
 export default {
   searchNearby,
   getVenueDetail,
+  signUp,
+  logIn,
+  getFavorites
 }
