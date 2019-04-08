@@ -46,25 +46,52 @@ export default class VenueList extends React.Component {
 
   updateBackendLike = (unlike, foursquare_id) => {
     if (unlike) {
-      ///// delete foursquare_id, user_id from backend favorites Table
+      // can add a delete message later after delete
+      API.deleteFavorite(this.props.userId, foursquare_id)
+        .then(deletesuccess=>{
+          if (deletesuccess && this.props.savedList) {
+            API.getFavorites(this.props.userId)
+              .then(favorites=>{this.setState({
+                likedIDs:[...favorites],
+                venueIDs:[...favorites]
+              })})
+          }
+          else if (deletesuccess && !this.props.savedList){
+            API.getFavorites(this.props.userId)
+              .then(favorites=>this.setState({likedIDs:[...favorites]}))
+          }
+        })
     }
     else {
-      //// add foursquare_id, user_id to backend favorites Table
+      API.addFavorite(this.props.userId, foursquare_id)
+        .then(favorite=>console.log(favorite))
     }
   }
 
   componentDidMount(){
-    API.searchNearby("51.5228","-0.1153",200,5)
-      .then(data=>data.response.venues.map(venueData=>venueData.id))
-      .then(venueIDs=>{this.setState({venueIDs:venueIDs});})
+    // savedList fetch favorites list, make liked and venue list the same
+    if (this.props.savedList) {
+      API.getFavorites(this.props.userId)
+        .then(favorites=>{this.setState({
+          likedIDs:[...favorites],
+          venueIDs:[...favorites]
+        })})
+    }
+    else {
+    // nearby list fetch nearby list, AND favorites list
+      API.searchNearby("51.5228","-0.1153",200,5)
+        .then(data=>data.response.venues.map(venueData=>venueData.id))
+        .then(venueIDs=>{this.setState({venueIDs:venueIDs});console.log(venueIDs)})
 
-    API.getFavorites(1)
-      .then(favorites=>this.setState({likedIDs:[...favorites]}))
+      API.getFavorites(this.props.userId)
+        .then(favorites=>this.setState({likedIDs:[...favorites]}))
+    }
   }
 
   render() {
     return (
-      <ScrollView style={styles.container}>
+      <ScrollView>
+      <View style={styles.container}>
       {this.state.venueClicked?
         <VenueDetailCard
           venueInfo={this.state.venueInfo}
@@ -73,7 +100,7 @@ export default class VenueList extends React.Component {
           toggleLike={this.toggleLike}
         />
         :
-        <ScrollView style={styles.container}>
+        <View style={styles.container}>
         {this.state.venueIDs.map(venueID=>{
           return (<VenueListCard
             foursquareID={venueID}
@@ -83,8 +110,9 @@ export default class VenueList extends React.Component {
           />)
         }
         )}
-        </ScrollView>
+        </View>
       }
+      </View>
       </ScrollView>
     )
   }

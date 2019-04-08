@@ -5,13 +5,14 @@ import AppNavigator from './navigation/AppNavigator';
 import LoginForm from './components/LoginForm';
 import SignupForm from './components/SignupForm';
 
+console.disableYellowBox = true;
 
 export default class App extends React.Component {
   state = {
     isLoadingComplete: false,
-    loggedIn:false, ///intialize with fale
+    loggedIn:true, ///intialize with fale, now true for testing
     signedUp: true, ///intialize with true
-    userId: undefined
+    userId: 1, ///initialize with undefined, now 1 for testing
   };
 
   toggleSignupLogin = ()=>{
@@ -55,7 +56,7 @@ export default class App extends React.Component {
       return (
         <View style={styles.container}>
           {Platform.OS === 'ios' && <StatusBar barStyle="default" />}
-          <AppNavigator userId={this.state.userId}/>
+          <AppNavigator screenProps={{userId:this.state.userId}} />
         </View>
       );
     }

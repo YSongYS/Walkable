@@ -13,4 +13,5 @@ export default {
   noticeText: '#fff',
   whiteColor: '#ffffff',
   heartColor: '#e0115f',
+  secondaryTintColor: '#003763'
 };

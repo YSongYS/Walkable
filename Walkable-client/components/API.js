@@ -1,5 +1,5 @@
-const client_id = "5K2PO0TCBUH5ZKRLQQVZVYOV21JQSUVJ44T35142BHVUFKUI"
-const client_secret = "GIZVTNTL3HOXRFIUDPT1O050GBPCKF3ZRPI3RMS5L0T4JD1M"
+const client_id = "BRVTREXC14M4LQBIHPC1QHENPTYM4W2FTO0ODJHKD21WKLZ3"
+const client_secret = "ART21GNEGJS51MELACSULCH2GUSICZGPNQPPNS5VCOSRLYG5"
 const base_url = 'http://localhost:3000'
 
 const searchNearby = (lon, lat, radius, limit) =>{
@@ -68,11 +68,27 @@ const getFavorites = (user_id) => {
     .then(res => res.json())
 }
 
+const addFavorite = (user_id, foursquare_id) => {
+  const url = base_url + `/users/${user_id}/${foursquare_id}`
+
+  return fetch(url)
+    .then(res => res.json())
+}
+
+const deleteFavorite = (user_id, foursquare_id) => {
+  const url = base_url + `/users/${user_id}/${foursquare_id}/delete`
+
+  return fetch(url)
+    .then(res => res.json())
+}
+
 
 export default {
   searchNearby,
   getVenueDetail,
   signUp,
   logIn,
-  getFavorites
+  getFavorites,
+  addFavorite,
+  deleteFavorite
 }

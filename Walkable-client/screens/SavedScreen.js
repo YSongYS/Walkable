@@ -10,7 +10,7 @@ export default class SavedScreen extends React.Component {
   render() {
     return (
       <View style={styles.container}>
-        <VenueList/>
+        // <VenueList userId={this.props.screenProps.userId} savedList={true}/>
       </View>
     )
   }

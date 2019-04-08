@@ -17,6 +17,7 @@ export default class LoginForm extends React.Component {
   logInFetchBackend = () => {
     API.logIn({email: this.state.email, password: this.state.password})
       .then(feedback=>{
+        console.log(feedback)
         if (!!feedback){
           this.props.loggingIntoApp(feedback.id)
         }

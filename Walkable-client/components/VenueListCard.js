@@ -26,7 +26,7 @@ export default class VenueListCard extends React.Component {
 
   componentDidMount(){
     API.getVenueDetail(this.props.foursquareID)
-      .then(data=>{return data.response.venue})
+      .then(data=>{console.log(data); return data.response.venue})
       .then(venueInfo=>{this.setState({
         name:venueInfo.name,
         category:venueInfo.categories[0].name,
@@ -67,7 +67,7 @@ export default class VenueListCard extends React.Component {
             <Text style={styles.venueAddressText}> {this.state.distance}m | {this.state.address} </Text>
           </View>
         </View>
-      }  
+      }
       </Card>
     )
   }

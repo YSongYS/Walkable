@@ -1,14 +1,29 @@
 import React from 'react';
-import { ExpoConfigView } from '@expo/samples';
+import UserProfile from './../components/UserProfile';
+import PinList from './../components/PinList';
+import { Text, StyleSheet, ScrollView, View, TouchableOpacity } from 'react-native';
 
 export default class ProfileScreen extends React.Component {
   static navigationOptions = {
-    title: 'app.json',
+    header:null
   };
 
   render() {
-    /* Go ahead and delete ExpoConfigView and replace it with your
-     * content, we just wanted to give you a quick view of your config */
-    return <ExpoConfigView />;
+    return(
+      <ScrollView>
+      <View style={styles.container}>
+        <UserProfile />
+        <PinList />
+      </View>
+      </ScrollView>
+    )
   }
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex:1,
+    justifyContent: 'space-around',
+    alignItems: 'stretch'
+  },
+})

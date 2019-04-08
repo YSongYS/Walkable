@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, Text } from 'react-native';
-import LoginForm from './../components/LoginForm';
+import CreatePinForm from './../components/CreatePinForm';
+import GetGeoLocation from './../components/GetGeoLocation';
 
 export default class CreateScreen extends React.Component {
   static navigationOptions = {
@@ -10,6 +11,7 @@ export default class CreateScreen extends React.Component {
   render() {
     return (
       <View style={styles.container}>
+        <GetGeoLocation />
       </View>
     )
   }
