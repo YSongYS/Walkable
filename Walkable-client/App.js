@@ -10,9 +10,9 @@ console.disableYellowBox = true;
 export default class App extends React.Component {
   state = {
     isLoadingComplete: false,
-    loggedIn:true, ///intialize with fale, now true for testing
+    loggedIn:false, ///intialize with fale, now true for testing
     signedUp: true, ///intialize with true
-    userId: 1, ///initialize with undefined, now 1 for testing
+    userId: null, ///initialize with undefined, now 1 for testing
   };
 
   toggleSignupLogin = ()=>{

@@ -1,6 +1,6 @@
 const client_id = "BRVTREXC14M4LQBIHPC1QHENPTYM4W2FTO0ODJHKD21WKLZ3"
 const client_secret = "ART21GNEGJS51MELACSULCH2GUSICZGPNQPPNS5VCOSRLYG5"
-const base_url = 'http://localhost:3000'
+const base_url = 'http://094cccef.ngrok.io'
 
 const searchNearby = (lon, lat, radius, limit) =>{
   const baseURL= "https://api.foursquare.com/v2/venues/search?"
@@ -82,6 +82,36 @@ const deleteFavorite = (user_id, foursquare_id) => {
     .then(res => res.json())
 }
 
+const createPin = (pinInfo) => {
+  const url = base_url + '/pins'
+  const options = {
+     method: 'POST',
+     headers: {
+       'Content-Type': 'application/json',
+       Accept: 'application/json'
+     },
+     body: JSON.stringify(pinInfo)
+  }
+  console.log(pinInfo)
+  return fetch(url, options)
+    .then(res => res.json())
+}
+
+const getPins = (userId) => {
+  const url = base_url + `/users/${userId}/pins`
+
+  return fetch(url)
+    .then(res => res.json())
+}
+
+const deletePin = (pinId) => {
+  const url = base_url + `/pins/${pinId}/delete`
+  console.log(url, pinId)
+
+  return fetch(url)
+    .then(res => res.json())
+}
+
 
 export default {
   searchNearby,
@@ -90,5 +120,8 @@ export default {
   logIn,
   getFavorites,
   addFavorite,
-  deleteFavorite
+  deleteFavorite,
+  createPin,
+  getPins,
+  deletePin
 }

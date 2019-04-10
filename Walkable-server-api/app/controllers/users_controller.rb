@@ -25,6 +25,12 @@ class UsersController < ApplicationController
     render json:@favorites_ids
   end
 
+  def get_pins
+    @user = User.find(params[:id])
+    @pins = @user.pins
+    render json:@pins
+  end
+
   def add_favorites
     @favorite = Favorite.create(user_id: params[:user_id], foursquare_id: params[:foursquare_id])
     render json:@favorite

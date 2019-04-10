@@ -79,7 +79,7 @@ export default class VenueList extends React.Component {
     }
     else {
     // nearby list fetch nearby list, AND favorites list
-      API.searchNearby("51.5228","-0.1153",200,5)
+      API.searchNearby("51.5228","-0.1153",200,2)
         .then(data=>data.response.venues.map(venueData=>venueData.id))
         .then(venueIDs=>{this.setState({venueIDs:venueIDs});console.log(venueIDs)})
 

@@ -13,7 +13,7 @@ export default class ProfileScreen extends React.Component {
       <ScrollView>
       <View style={styles.container}>
         <UserProfile />
-        <PinList />
+        <PinList userId={this.props.screenProps.userId}/>
       </View>
       </ScrollView>
     )

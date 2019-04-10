@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, Text } from 'react-native';
 import CreatePinForm from './../components/CreatePinForm';
-import GetGeoLocation from './../components/GetGeoLocation';
+import Colors from './../constants/Colors';
 
 export default class CreateScreen extends React.Component {
   static navigationOptions = {
@@ -11,7 +11,7 @@ export default class CreateScreen extends React.Component {
   render() {
     return (
       <View style={styles.container}>
-        <GetGeoLocation />
+        <CreatePinForm userId={this.props.screenProps.userId}/>
       </View>
     )
   }
@@ -20,8 +20,7 @@ export default class CreateScreen extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex:1,
-    justifyContent: 'space-around',
-    alignItems: 'stretch'
+    backgroundColor:Colors.secondaryTintColor
   },
   textMarker: {
     height:50,

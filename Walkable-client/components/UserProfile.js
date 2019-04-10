@@ -12,7 +12,7 @@ export default class VenueList extends React.Component {
       <View style={styles.container}>
         <View style={styles.userProfileContainer}>
           <Avatar rounded size={175} containerStyle={styles.userPhoto} source={{uri:'https://i.pinimg.com/originals/6a/fa/2c/6afa2c688867e33640a8782f8d2fd44b.jpg'}}/>
-          <Text style={styles.nameText}>Lorenz</Text>
+          <Text style={styles.nameText}>Song</Text>
           <TouchableOpacity onPress={()=>{}} style={styles.fakeButton}>
             <Text style={styles.fakeButtonText}>Log out</Text>
           </TouchableOpacity>

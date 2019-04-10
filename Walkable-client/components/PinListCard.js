@@ -8,36 +8,26 @@ import API from './API'
 
 export default class PinListCard extends React.Component {
 
-  state = {
-    loading:true,
-  }
-
-  componentDidMount(){
-    this.setState({loading:false})
-  }
+  ///maybe add an undo for delete
 
   render() {
     return (
       <Card>
-      {this.state.loading?
-        <Text>Loading...</Text>
-        :
         <View style={styles.cardContentContainer}>
           <View style={styles.cardImageContainer}>
-            <Avatar size='medium' rounded title='HL'/>
+            <Avatar size='medium' rounded title={this.props.pinInfo.title.charAt(0)+this.props.pinInfo.title.charAt(1)}/>
           </View>
           <View style={styles.cardWordsContainer}>
             <View style={styles.titleNEditContainer}>
-              <Text style={styles.pinNameText}> Lo's Home </Text>
-              <TouchableOpacity onPress={()=>{}}>
-                <Icon name='edit' color={Colors.tabIconDefault} type='material' size={18}/>
+              <Text style={styles.pinNameText}> {this.props.pinInfo.title} </Text>
+              <TouchableOpacity onPress={()=>this.props.deletePin(this.props.pinInfo.id)}>
+                <Icon name='delete' color={Colors.tabIconDefault} type='material' size={18}/>
               </TouchableOpacity>
             </View>
-            <Text style={styles.pinDescriptionText}> Welcome to the boardgame night.</Text>
-            <Text style={styles.pinAddressText}> Lon:12.5 | Lat:22.4 </Text>
+            <Text style={styles.pinDescriptionText}> {this.props.pinInfo.description} </Text>
+            <Text style={styles.pinAddressText}> Lat:{this.props.pinInfo.latitude} | Lon:{this.props.pinInfo.longitude} </Text>
           </View>
         </View>
-      }
       </Card>
     )
   }

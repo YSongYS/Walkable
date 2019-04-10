@@ -33,7 +33,7 @@ class BackButtonIcon extends React.Component {
       <Icon.MaterialCommunityIcons
         name={this.props.name}
         size={50}
-        color={Colors.whiteColor}
+        color={Colors.tintColor}
       />
     );
   }

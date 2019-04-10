@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import ARCosmo from './../components/ARCosmo';
 import HomeScreenStart from './../components/HomeScreenStart';
 import HomeScreenARWalk from './../components/HomeScreenARWalk';
 import HomeScreenARNavigate from './../components/HomeScreenARNavigate';
@@ -23,11 +24,14 @@ export default class HomeScreen extends React.Component {
   endNavigate = () => {this.setState({navigateStart:false})}
 
 
+  // WHATs BEING REPLSCED
+  // {!this.state.navigateStart && this.state.walkStart && <HomeScreenARWalk endWalking={this.endWalking} startNavigate={this.startNavigate}/>}
+
   render() {
     return (
       <View style={styles.container} >
         {this.state.navigateStart && <HomeScreenARNavigate endNavigate={this.endNavigate}/>}
-        {!this.state.navigateStart && this.state.walkStart && <HomeScreenARWalk endWalking={this.endWalking} startNavigate={this.startNavigate}/>}
+        {!this.state.navigateStart && this.state.walkStart && <ARCosmo endWalking={this.endWalking} startNavigate={this.startNavigate}/>}
         {!this.state.navigateStart && !this.state.walkStart && <HomeScreenStart startWalking={this.startWalking}/>}
       </View>
     )
