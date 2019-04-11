@@ -11,7 +11,7 @@ export default class CreateScreen extends React.Component {
   render() {
     return (
       <View style={styles.container}>
-        <CreatePinForm userId={this.props.screenProps.userId}/>
+        <CreatePinForm userId={this.props.screenProps.userId} createPin={this.props.screenProps.createPin}/>
       </View>
     )
   }

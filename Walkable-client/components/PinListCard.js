@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, StyleSheet, View, TouchableOpacity, Image, Button } from 'react-native';
+import { Text, StyleSheet, View, TouchableOpacity, Image, Button, Switch } from 'react-native';
 import { BackButtonIcon, NavigateButtonIcon } from './AppIcons';
 import Colors from '../constants/Colors';
 import { Card, Avatar, Badge, Icon, Rating } from 'react-native-elements'
@@ -25,7 +25,15 @@ export default class PinListCard extends React.Component {
               </TouchableOpacity>
             </View>
             <Text style={styles.pinDescriptionText}> {this.props.pinInfo.description} </Text>
-            <Text style={styles.pinAddressText}> Lat:{this.props.pinInfo.latitude} | Lon:{this.props.pinInfo.longitude} </Text>
+            <Text style={styles.pinAddressText}> Lat:{Math.round(this.props.pinInfo.latitude*10000)/10000} | Lon:{Math.round(this.props.pinInfo.longitude*10000)/10000} </Text>
+          </View>
+          <View style={styles.sliderContainer}>
+            <Switch
+              onTintColor={Colors.tintColor}
+              onValueChange={()=>this.props.togglePinOnOff(this.props.pinInfo.id)}
+              value={this.props.pinOn}
+              style={styles.slider}
+            />
           </View>
         </View>
       </Card>
@@ -43,7 +51,7 @@ const styles = StyleSheet.create({
     width:'20%',
   },
   cardWordsContainer:{
-    width:'80%',
+    width:'65%',
     flexDirection:'column',
     justifyContent:'flex-start',
     alignItems:'stretch',
@@ -51,7 +59,7 @@ const styles = StyleSheet.create({
   titleNEditContainer:{
     flexDirection:'row',
     justifyContent:'flex-start',
-    alignItems:'flex-start',
+    alignItems:'center',
   },
   pinNameText:{
     fontSize: 18,
@@ -67,4 +75,14 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color:Colors.tintColor,
   },
+  sliderContainer:{
+    width:'15%',
+    height:50,
+    flexDirection:'row',
+    justifyContent:'flex-start',
+    alignItems:'center'
+  },
+  slider:{
+    transform:[{ scaleX: .7 }, { scaleY: .7 }]
+  }
 })

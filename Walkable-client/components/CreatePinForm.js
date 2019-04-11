@@ -51,14 +51,13 @@ export default class CreatePinForm extends React.Component {
       Alert.alert('Woopsy!', 'Description cannot be blank.',[{text: 'OK', onPress: ()=>{}}])
     }
     else {
-      API.createPin({
+       this.props.createPin({
         user_id:this.props.userId,
         title:this.state.title,
         description:this.state.description,
         latitude:this.state.pinLatitude,
         longitude:this.state.pinLongitude,
       })
-        .then((newPin)=>console.log(newPin))
       // Alert.alert('Success', 'Your Headsup Pin has been created!',
       // [{text: 'Add another', onPress: ()=>{}},
       // {text: 'See my pins', onPress: ()=>{}}]

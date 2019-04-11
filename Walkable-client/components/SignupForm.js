@@ -18,7 +18,7 @@ export default class SignupForm extends React.Component {
     API.signUp({email: this.state.email, password: this.state.password, name: this.state.name})
       .then(feedback=>{
         if (!!feedback){
-          this.props.loggingIntoApp(feedback.id)
+          this.props.loggingIntoApp(feedback.id, feedback.name)
         }
         else {
           this.setState({errorMessage:'Invalid password or email'})

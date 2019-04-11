@@ -8,11 +8,11 @@ export default class SavedScreen extends React.Component {
     title: 'Saved Venues',
   };
 
-
+// <VenueList userId={this.props.screenProps.userId} savedList={true}/>
   render() {
     return (
       <View style={styles.container}>
-        <VenueList userId={this.props.screenProps.userId} savedList={true}/>
+        <GetOrientation />
       </View>
     )
   }

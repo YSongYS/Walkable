@@ -19,7 +19,7 @@ export default class LoginForm extends React.Component {
       .then(feedback=>{
         console.log(feedback)
         if (!!feedback){
-          this.props.loggingIntoApp(feedback.id)
+          this.props.loggingIntoApp(feedback.id, feedback.name)
         }
         else {
           this.setState({errorMessage:'Invalid password or email'})

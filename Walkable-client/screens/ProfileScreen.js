@@ -9,11 +9,19 @@ export default class ProfileScreen extends React.Component {
   };
 
   render() {
+    console.log(this.props.screenProps.userName, this.props.screenProps.pins)
     return(
       <ScrollView>
       <View style={styles.container}>
-        <UserProfile />
-        <PinList userId={this.props.screenProps.userId}/>
+        <UserProfile userName={this.props.screenProps.userName}/>
+        <PinList
+          pins={this.props.screenProps.pins}
+          pinsOn={this.props.screenProps.pinsOn}
+          deletePin={this.props.screenProps.deletePin}
+          togglePinOnOff={this.props.screenProps.togglePinOnOff}
+          toggleAllPins={this.props.screenProps.toggleAllPins}
+          pinsAllOn={this.props.screenProps.pinsOn.length===this.props.screenProps.pins.length}
+        />
       </View>
       </ScrollView>
     )

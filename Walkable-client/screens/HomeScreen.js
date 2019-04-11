@@ -30,9 +30,23 @@ export default class HomeScreen extends React.Component {
   render() {
     return (
       <View style={styles.container} >
-        {this.state.navigateStart && <HomeScreenARNavigate endNavigate={this.endNavigate}/>}
-        {!this.state.navigateStart && this.state.walkStart && <ARCosmo endWalking={this.endWalking} startNavigate={this.startNavigate}/>}
-        {!this.state.navigateStart && !this.state.walkStart && <HomeScreenStart startWalking={this.startWalking}/>}
+        {this.state.navigateStart &&
+          <HomeScreenARNavigate
+            endNavigate={this.endNavigate}
+          />
+        }
+        {!this.state.navigateStart && this.state.walkStart &&
+          <ARCosmo
+            endWalking={this.endWalking}
+            startNavigate={this.startNavigate}
+            pins={this.props.screenProps.pins}
+            pinsOn={this.props.screenProps.pinsOn}
+          />
+        }
+        {!this.state.navigateStart && !this.state.walkStart &&
+          <HomeScreenStart startWalking={this.startWalking}
+          />
+        }
       </View>
     )
   }

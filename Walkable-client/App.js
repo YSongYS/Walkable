@@ -4,16 +4,26 @@ import { AppLoading, Asset, Font, Icon } from 'expo';
 import AppNavigator from './navigation/AppNavigator';
 import LoginForm from './components/LoginForm';
 import SignupForm from './components/SignupForm';
+import API from './components/API';
 
 console.disableYellowBox = true;
 
 export default class App extends React.Component {
   state = {
     isLoadingComplete: false,
-    loggedIn:false, ///intialize with fale, now true for testing
+    loggedIn:true, ///intialize with fale, now true for testing
     signedUp: true, ///intialize with true
-    userId: null, ///initialize with undefined, now 1 for testing
+    userId: 1, ///initialize with undefined, now 1 for testing
+    userName:'Song',
+    pins:[],
+    pinsOn:[]
   };
+
+///// comment out for actually log in senario
+  componentDidMount(){
+    API.getPins(this.state.userId)
+      .then(pins=>this.setState({pins:[...pins]}))
+  }
 
   toggleSignupLogin = ()=>{
     this.setState({
@@ -21,12 +31,54 @@ export default class App extends React.Component {
     })
   }
 
-  loggingIntoApp = (userId) => {
+  loggingIntoApp = (userId, userName) => {
+    console.log(userId, userName)
     this.setState({
       loggedIn: true,
       signedUp: true,
-      userId:userId
-    })
+      userId:userId,
+      userName:userName
+    }, this.getAllPins)
+  }
+
+  getAllPins = () => {
+    API.getPins(this.state.userId)
+      .then(pins=>this.setState({pins:[...pins]}))
+  }
+
+  deletePin = (pinId) => {
+    API.deletePin(pinId)
+      .then(res=>{
+        if (res){
+          API.getPins(this.state.userId)
+            .then(pins=>this.setState({pins:pins}))
+        }
+      })
+  }
+
+  createPin = (pinInfo) => {
+    API.createPin(pinInfo)
+      .then((newPin)=>{
+        this.setState({pins:this.state.pins.concat(newPin)})
+      })
+  }
+
+  togglePinOnOff = (pinId) => {
+    if (this.state.pinsOn.includes(pinId)){
+      this.setState({pinsOn: this.state.pinsOn.filter(pin=>!(pin==pinId))})
+    }
+    else {
+      this.setState({pinsOn: this.state.pinsOn.concat(pinId)})
+    }
+  }
+
+  toggleAllPins = (value) => {
+    if (value) {
+      this.setState({pinsOn: this.state.pins.map(pin=>pin.id)},()=>console.log(this.state.pinsOn))
+    }
+    else {
+      this.setState({pinsOn: []},()=>console.log(this.state.pinsOn))
+    }
   }
 
   render() {
@@ -56,7 +108,16 @@ export default class App extends React.Component {
       return (
         <View style={styles.container}>
           {Platform.OS === 'ios' && <StatusBar barStyle="default" />}
-          <AppNavigator screenProps={{userId:this.state.userId}} />
+          <AppNavigator screenProps={{
+            userId:this.state.userId,
+            userName:this.state.userName,
+            pins:this.state.pins,
+            pinsOn:this.state.pinsOn,
+            deletePin:this.deletePin,
+            createPin:this.createPin,
+            togglePinOnOff:this.togglePinOnOff,
+            toggleAllPins:this.toggleAllPins,
+          }} />
         </View>
       );
     }

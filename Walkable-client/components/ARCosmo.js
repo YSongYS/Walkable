@@ -25,23 +25,16 @@ export default class ARCosmo extends React.Component {
     ThreeAR.suppressWarnings()
   }
 
-  componentWillMount(){
+  componentWillMount(){}
 
-  }
-
+  ////// Get Location and Heading of the phone
   getLocationAsync = async () => {
     let { status } = await Permissions.askAsync(Permissions.LOCATION);
     if (status !== 'granted') {
       this.setState({
         errorMessage: 'Permission to access location was denied',
-      });
-      //
-      // Expo.Location.watchHeadingAsync((obj)=>{
-      //   let heading = obj.magHeading
-      //   this.setState({heading:heading})})
+      })
     }
-    /// put all the function into AR Cosmo?
-    // link backend pins with AR Cosmo loop
     let location = await Location.getCurrentPositionAsync({});
     let heading = await Location.getHeadingAsync({})
     this.setState({
@@ -53,15 +46,35 @@ export default class ARCosmo extends React.Component {
     });
   }
 
-  getBearing = (lonD1, lonD2, fixD) => {
-  	const [lat1, lat2, lon1, lon2] = [this.state.latitude*Math.PI/180, this.state.longitude*Math.PI/180, lonD1*Math.PI/180, lonD2*Math.PI/180]
-  	const y= Math.sin(lon2-lon1)*Math.cos(lat2)
-  	const x= Math.cos(lat1)*Math.sin(lat2)-Math.sin(lat1)*Math.cos(lat2)*Math.cos(lon2-lon1)
-  	const bearing = Math.atan2(y,x)
-  	const correction = bearing - this.state.heading*Math.PI/180
-      const ARx = Math.sin(correction)*fixD
-      const ARz = Math.cos(correction)*fixD*(-1)
-      return [ARx, ARz]
+  ////// get bearing direction between point 1 and point 2
+  getBearing = (latD2, lonD2, arDistance) => {
+    const headingCorrection = -105*Math.PI/180
+    const [lat1, lon1, lat2, lon2] = [this.state.latitude*Math.PI/180, this.state.longitude*Math.PI/180, latD2*Math.PI/180, lonD2*Math.PI/180]
+    const y= Math.sin(lon2-lon1)*Math.cos(lat2)
+    const x= Math.cos(lat1)*Math.sin(lat2)-Math.sin(lat1)*Math.cos(lat2)*Math.cos(lon2-lon1)
+    const bearing = Math.atan2(y,x)
+    const bearingD = bearing*180/Math.PI
+    const correction = bearing
+    // const correction = bearing - (this.state.heading*Math.PI/180+headingCorrection)
+    console.log('x', Math.sin(correction), 'y', Math.cos(correction)*(-1))
+    const ARx = Math.sin(correction)*arDistance
+    const ARz = Math.cos(correction)*arDistance*(-1)
+    return [ARx, ARz]
+  }
+
+  /////// get distance between piont 1 and point 2
+  getDistance = (latD2, lonD2) => {
+    const r= 6371000 // metres
+    const latR1= this.state.latitude*Math.PI/180
+    const latR2= latD2*Math.PI/180
+    const dLatR= (latD2-this.state.latitude)*Math.PI/180
+    const dLonR= (lonD2-this.state.longitude)*Math.PI/180
+    const a= Math.sin(dLatR/2) * Math.sin(dLatR/2) +
+           Math.cos(latR1) * Math.cos(latR2) *
+           Math.sin(dLonR/2) * Math.sin(dLonR/2)
+    const c= 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
+    const d= r * c
+    return d
   }
 
   render() {
@@ -99,10 +112,13 @@ export default class ARCosmo extends React.Component {
       text: text,
       font: require('./../assets/fonts/neue_haas_unica_pro_regular.json'),
       size: size, //Size of text
-      height: 0.1, //Thickness to extrude text
+      height: 0.075, //Thickness to extrude text
       curveSegments: 12, //Smoothness of curve
     });
-    this.textMesh.lookAt(this.camera.position) //Make text always face user to start with
+    const test = new THREE.Vector3(-x,0,-z)
+    this.textMesh.lookAt(test)
+    // this.textMesh.lookAt(this.camera.position)
+    //Make text always face user to start with
     ExpoTHREE.utils.alignMesh(this.textMesh, { x:x, y:y, z:z })
   }
 
@@ -124,13 +140,28 @@ export default class ARCosmo extends React.Component {
     this.scene.background = new ThreeAR.BackgroundTexture(this.renderer) // Give scene the same background as the camera
     this.camera = new ThreeAR.Camera(width, height, 0.01, 1000)
 
-    const testX = this.getBearing(51.520300, -0.086712,10)[0]
-    const testY = this.getBearing(51.520300, -0.086712,10)[1]
-    console.log(testX, testY, this.state.heading, this.state.location)
-
     this.setupLights()
-    this.createText('Flatiron School',0,0,-5,0.1)
-    this.createText('The door',2,0,-5,0.1)
+
+    const minARSize = 1
+    const maxARSize = 10
+    let arFence = 500
+
+    this.props.pins.map(pin=>{
+      if (this.props.pinsOn.includes(pin.id)){
+        console.log('ind')
+        const distance = this.getDistance(pin.latitude, pin.longitude)
+        if (distance<=arFence){
+          console.log(pin.title)
+          console.log(distance)
+          const arDistance = maxARSize - distance/(arFence/(maxARSize-minARSize))
+          console.log(arDistance)
+          const [arX, arZ] = this.getBearing(pin.latitude, pin.longitude, arDistance)
+          this.createText(pin.title,arX,0,arZ,0.1)
+        } else {
+
+        }
+      }
+    })
   }
 
   onResize = ({ x, y, scale, width, height }) => {

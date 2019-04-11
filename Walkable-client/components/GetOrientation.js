@@ -15,6 +15,7 @@ export default class GetLocation extends React.Component {
     latitude:null,
     heading:null,
     errorMessage: null,
+    loading:true
   }
 
   componentWillMount(){
@@ -46,17 +47,44 @@ export default class GetLocation extends React.Component {
       location:location,
       longitude:location.coords.longitude,
       latitude:location.coords.latitude,
+      loading:false
     });
   }
 
+  getBearing = (latD2, lonD2, fixD) => {
+    const headingCorrection = -105*Math.PI/180
+    const [lat1, lon1, lat2, lon2] = [this.state.latitude*Math.PI/180, this.state.longitude*Math.PI/180, latD2*Math.PI/180, lonD2*Math.PI/180]
+    const y= Math.sin(lon2-lon1)*Math.cos(lat2)
+    const x= Math.cos(lat1)*Math.sin(lat2)-Math.sin(lat1)*Math.cos(lat2)*Math.cos(lon2-lon1)
+    const bearing = Math.atan2(y,x)
+    const bearingD = bearing*180/Math.PI
+    console.log(this.state.heading, headingCorrection, bearing)
+    const correction = bearing - (this.state.heading*Math.PI/180+headingCorrection)
+    const ARx = Math.sin(correction)*fixD
+    const ARz = Math.cos(correction)*fixD*(-1)
+    console.log(ARx, ARz, bearingD)
+    return [ARx, ARz, bearingD]
+  }
 
   render(){
+    let targetLat = 51.521645
+    let targetLon = -0.089161
+    const [testX, testY, bearing] = this.getBearing(targetLat, targetLon,10)
+
     let coords = JSON.stringify(this.state.location)
     return(
-      <View style={styles.pageContainer}>
-      <Text> heading: {this.state.heading}</Text>
-      <Text> geo: {this.state.latitude}</Text>
-      </View>
+      <>
+      {this.state.loading? null:
+        <View style={styles.pageContainer}>
+        <Text style={{color:'white'}}> Heading: {this.state.heading}</Text>
+        <Text style={{color:'white'}}> Lat: {this.state.latitude}</Text>
+        <Text style={{color:'white'}}> Lon: {this.state.longitude}</Text>
+        <Text style={{color:'white'}}> X: {testX}</Text>
+        <Text style={{color:'white'}}> Y: {testY}</Text>
+        <Text style={{color:'white'}}> Bearing: {bearing}</Text>
+        </View>
+      }
+      </>
     )
   }
 }

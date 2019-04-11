@@ -68,8 +68,8 @@ Project Management  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 **Timeline:**
 * Wireframe and planning, setups: 1 day (0)
 * Non-AR features and connecting to back-end: 2 days (0)
-* AR features: 3.5 days (2)
-* AR add-on features (new venue): 1.5 day (1.5)
+* AR features: 3.5 days (1.5)
+* AR add-on features (new venue): 1.5 day (0)
 * Front-end improvement: 1.5 days (1.5)
 * Presentation: 0.5 day (0.5)
 * Refractor code and buffer : 2 days (2)
