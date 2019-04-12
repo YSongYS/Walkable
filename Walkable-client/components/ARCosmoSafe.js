@@ -20,42 +20,12 @@ export default class ARCosmo extends React.Component {
   }
 
   componentDidMount() {
-    // Location async for location and heading
     this.getLocationAsync()
-
     THREE.suppressExpoWarnings(true)
     ThreeAR.suppressWarnings()
   }
 
-  render() {
-    return (
-      <>
-      {this.state.loading? null:
-        <View style={styles.container}>
-        <GraphicsView
-          style={styles.containerFlex}
-          onContextCreate={this.onContextCreate}
-          onRender={this.onRender}
-          onResize={this.onResize}
-          isArEnabled
-          isArRunningStateEnabled
-          isArCameraStateEnabled
-        />
-        <TouchableOpacity style={styles.backbuttonContainer} onPress={this.props.endWalking}>
-            <BackButtonIcon name='chevron-left'/>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navigatebuttonContainer} onPress={this.props.startNavigate}>
-            <Text style={styles.navigateText}>Navigate me</Text>
-        </TouchableOpacity>
-        </View>
-      }
-      </>
-    )
-  }
-
-
-///////////////////////////////////////////////////////////// Location and hading ///////////////////////////////////////////////////////////////
-
+  componentWillMount(){}
 
   ////// Get Location and Heading of the phone
   getLocationAsync = async () => {
@@ -75,7 +45,6 @@ export default class ARCosmo extends React.Component {
       loading:false
     });
   }
-
 
   ////// get bearing direction between point 1 and point 2
   getBearing = (latD2, lonD2, arDistance) => {
@@ -108,25 +77,75 @@ export default class ARCosmo extends React.Component {
     return d
   }
 
+  render() {
+    return (
+      <>
+      {this.state.loading? null:
+        <View style={styles.container}>
+        <GraphicsView
+          style={styles.containerFlex}
+          onContextCreate={this.onContextCreate}
+          onRender={this.onRender}
+          onResize={this.onResize}
+          isArEnabled
+          isArRunningStateEnabled
+          isArCameraStateEnabled
+        />
+        <TouchableOpacity style={styles.backbuttonContainer} onPress={this.props.endWalking}>
+            <BackButtonIcon name='chevron-left'/>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.navigatebuttonContainer} onPress={this.props.startNavigate}>
+            <Text style={styles.navigateText}>Navigate me</Text>
+        </TouchableOpacity>
+        </View>
+      }
+      </>
+    )
+  }
 
-///////////////////////////////////////////////////////////// AR world ///////////////////////////////////////////////////////////////
+  createText = (text,x,y,z,size) => {
+    this.textMesh = new TextMesh()
+    this.textMesh.rotation.y = Math.PI
+    this.scene.add(this.textMesh)
+    this.textMesh.material = new THREE.MeshPhongMaterial({ color: 0xffffff })
+    this.textMesh.update({
+      text: text,
+      font: require('./../assets/fonts/neue_haas_unica_pro_regular.json'),
+      size: size, //Size of text
+      height: 0.075, //Thickness to extrude text
+      curveSegments: 12, //Smoothness of curve
+    });
+    const test = new THREE.Vector3(-x,0,-z)
+    this.textMesh.lookAt(test)
+    // this.textMesh.lookAt(this.camera.position)
+    //Make text always face user to start with
+    ExpoTHREE.utils.alignMesh(this.textMesh, { x:x, y:y, z:z })
+  }
+
+  //required for MeshPongMaterial to work
+  setupLights = () => {
+    let light = new THREE.DirectionalLight(0xffffff, 0.8)
+    light.position.set(0, 0, -1)
+    this.scene.add(light)
+    let lighta = new THREE.PointLight(0xffffff, 1.5)
+    lighta.position.set(0, 100, 90)
+    this.scene.add(lighta)
+  }
 
   onContextCreate = async ({ gl, scale: pixelRatio, width, height }) => {
-    // Create a 3D renderer
     this.renderer = new ExpoTHREE.Renderer({gl, pixelRatio, width, height})
-    //* this.renderer.setClearColor(0xffffff, 1.0)
+    this.renderer.setClearColor(0xffffff, 1.0)
 
-    // This will create a camera texture and use it as the background for our scene
     this.scene = new THREE.Scene()
-    this.scene.background = new ThreeAR.BackgroundTexture(this.renderer)
-    // EXPO: Now we make a camera that matches the device orientation. Ex: When we look down this camera will rotate to look down too!
+    this.scene.background = new ThreeAR.BackgroundTexture(this.renderer) // Give scene the same background as the camera
     this.camera = new ThreeAR.Camera(width, height, 0.01, 1000)
 
     this.setupLights()
-    // rendering all words
+
     const minARSize = 1
     const maxARSize = 10
     let arFence = 500
+
     this.props.pins.map(pin=>{
       if (this.props.pinsOn.includes(pin.id)){
         const distance = this.getDistance(pin.latitude, pin.longitude)
@@ -137,87 +156,26 @@ export default class ARCosmo extends React.Component {
           const [arX, arZ] = this.getBearing(pin.latitude, pin.longitude, arDistance)
           this.createText(pin.title,arX,0,arZ,0.1)
         } else {
-          //// long distance direction
+
         }
       }
     })
-
-    //// testing field
-    this.rotates = []
-    objecttoRotate = this.createOctahedronBufferGeo(-0.4)
-    this.rotates.push(objecttoRotate)
-    objecttoRotate = this.createOctahedronBufferGeo(-0.6)
-    this.rotates.push(objecttoRotate)
-
-  }
-
-  createOctahedronBufferGeo = (z) => {
-    // Make a cube - notice that each unit is 1 meter in real life, we will make our box 0.1 meters
-    const geometry = new THREE.OctahedronBufferGeometry(0.1, 0)
-    // Simple color material
-    const material = new THREE.MeshPhongMaterial({
-      color: 0xff00ff,
-    })
-    // Combine our geometry and material
-    let cube = new THREE.Mesh(geometry, material)
-    // Place the box 0.4 meters in front of us.
-    cube.position.z = z
-    // Add the cube to the scene
-    this.scene.add(cube)
-    return cube
   }
 
   onResize = ({ x, y, scale, width, height }) => {
-    if (!this.renderer) {return}
-    this.camera.aspect = width / height
-    this.camera.updateProjectionMatrix()
-    this.renderer.setPixelRatio(scale)
-    this.renderer.setSize(width, height)
-  }
+    if (!this.renderer) {return;}
+    this.camera.aspect = width / height;
+    this.camera.updateProjectionMatrix();
+    this.renderer.setPixelRatio(scale);
+    this.renderer.setSize(width, height);
+    this.camera.position.set(0, 5, -10)
+    this.camera.lookAt(new THREE.Vector3())
+  };
 
-  onRender = (delta) => {
-    if (this.rotates.length!==0){
-      this.rotates.map(object=>{
-        object.rotation.x += 2 * delta
-        object.rotation.y += 1.5 * delta
-      })
-    }
-    this.renderer.render(this.scene, this.camera)
-  }
-
-  ////// Text render component
-  createText = (text,x,y,z,size) => {
-    this.textMesh = new TextMesh()
-    this.textMesh.rotation.y = Math.PI
-    this.scene.add(this.textMesh)
-    this.textMesh.material = new THREE.MeshPhongMaterial({ color: 0x0000FF }) // color of text
-    this.textMesh.update({
-      text: text,
-      font: require('./../assets/fonts/neue_haas_unica_pro_regular.json'),
-      size: size, //Size of text
-      height: 0.075, //Thickness to extrude text
-      curveSegments: 12, //Smoothness of curve
-    });
-    // Make text always face user to start with
-    const test = new THREE.Vector3(-x,0,-z)
-    this.textMesh.lookAt(test)
-    ExpoTHREE.utils.alignMesh(this.textMesh, { x:x, y:y, z:z })
-  }
-
-  //required for MeshPongMaterial to work
-  setupLights = () => {
-    let light = new THREE.DirectionalLight(0xffffff, 0.8)
-    light.position.set(0, 0, -1)
-    this.scene.add(light)
-    /// Light shining from z and y direction, x direction dark
-    let lighta = new THREE.PointLight(0xffffff, 1.5)
-    lighta.position.set(0, 100, 90)
-    this.scene.add(lighta)
-  }
-
+  onRender = () => {
+    this.renderer.render(this.scene, this.camera);
+  };
 }
-
-////////////////////////////////////////////////////// Styling ////////////////////////////////////////////////////////////////
 
 const styles = StyleSheet.create({
   container:{
