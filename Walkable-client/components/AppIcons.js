@@ -39,6 +39,18 @@ class BackButtonIcon extends React.Component {
   }
 }
 
+class BackButtonIconWhite extends React.Component {
+  render() {
+    return (
+      <Icon.MaterialCommunityIcons
+        name={this.props.name}
+        size={50}
+        color={Colors.whiteColor}
+      />
+    );
+  }
+}
+
 class NavigateButtonIcon extends React.Component {
   render() {
     return (
@@ -56,6 +68,6 @@ export {
   TabBarIcon,
   HomePageIcon,
   BackButtonIcon,
+  BackButtonIconWhite,
   NavigateButtonIcon,
-
 }

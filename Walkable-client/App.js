@@ -22,7 +22,11 @@ export default class App extends React.Component {
 ///// comment out for actually log in senario
   componentDidMount(){
     API.getPins(this.state.userId)
-      .then(pins=>this.setState({pins:[...pins]}))
+      .then(pins=>this.setState({
+        pins:[...pins],
+        pinsOn:[27]
+        // pinsOn:pins.map(pin=>pin.id)
+      }))
   }
 
   toggleSignupLogin = ()=>{

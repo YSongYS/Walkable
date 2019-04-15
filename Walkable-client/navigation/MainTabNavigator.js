@@ -13,12 +13,12 @@ const HomeStack = createStackNavigator({
 });
 
 HomeStack.navigationOptions = {
-  tabBarLabel: 'Home',
+  tabBarLabel: 'Walk',
   tabBarOptions: {activeTintColor:'#008093', inactiveTintColor:'#ccc', labelStyle:{fontSize:12}},
   tabBarIcon: ({ focused }) => (
     <TabBarIcon
       focused={focused}
-      name={ Platform.OS === 'ios'? `${focused ? 'home' : 'home-outline'}` : 'md-information-circle'}
+      name={ Platform.OS === 'ios'? `${focused ? 'walk' : 'walk'}` : 'md-information-circle'}
     />
   ),
 };

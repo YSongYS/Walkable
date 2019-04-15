@@ -6,6 +6,7 @@ import Colors from '../constants/Colors';
 import VenueListCard from './VenueListCard';
 import VenueDetailCard from './VenueDetailCard';
 import API from './API';
+import SeedData from './../constants/RoadTestSearchNearByData'
 
 
 export default class VenueList extends React.Component {
@@ -79,9 +80,9 @@ export default class VenueList extends React.Component {
     }
     else {
     // nearby list fetch nearby list, AND favorites list
-      API.searchNearby("51.5228","-0.1153",200,2)
-        .then(data=>data.response.venues.map(venueData=>venueData.id))
-        .then(venueIDs=>{this.setState({venueIDs:venueIDs});console.log(venueIDs)})
+      this.setState({
+        venueIDs:[...this.props.listofAR]
+      })
 
       API.getFavorites(this.props.userId)
         .then(favorites=>this.setState({likedIDs:[...favorites]}))
@@ -101,7 +102,7 @@ export default class VenueList extends React.Component {
         />
         :
         <View style={styles.container}>
-        {this.state.venueIDs.map(venueID=>{
+        {this.state.venueIDs.filter(venueID=>!!SeedData.venueDetails[venueID]).map(venueID=>{
           return (<VenueListCard
             foursquareID={venueID}
             showVenue={this.showVenue}

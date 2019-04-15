@@ -3,10 +3,13 @@ import * as Expo from 'expo';
 import { Constants, Location, Permissions } from 'expo';
 import { StyleSheet, Text, View, TouchableOpacity, Fragment } from 'react-native';
 import ExpoTHREE, { AR as ThreeAR, THREE } from 'expo-three';
-import { BackButtonIcon, NavigateButtonIcon } from './AppIcons';
+import { BackButtonIcon, BackButtonIconWhite, NavigateButtonIcon } from './AppIcons';
 import { View as GraphicsView } from 'expo-graphics';
 import TextMesh from './TextMesh';
 import Colors from '../constants/Colors';
+import { Avatar, Badge, Icon } from 'react-native-elements'
+import VenueList from './VenueList'
+
 
 export default class ARCosmo extends React.Component {
 
@@ -17,6 +20,9 @@ export default class ARCosmo extends React.Component {
     heading:null,
     errorMessage: null,
     loading:true,
+    navigate:false,
+    seeList:false,
+    listIDs:[],
   }
 
   componentDidMount() {
@@ -28,26 +34,63 @@ export default class ARCosmo extends React.Component {
   }
 
   render() {
+
+    const [up, right, left]  = this.getNavigateReading()
+
     return (
       <>
       {this.state.loading? null:
-        <View style={styles.container}>
-        <GraphicsView
-          style={styles.containerFlex}
-          onContextCreate={this.onContextCreate}
-          onRender={this.onRender}
-          onResize={this.onResize}
-          isArEnabled
-          isArRunningStateEnabled
-          isArCameraStateEnabled
-        />
-        <TouchableOpacity style={styles.backbuttonContainer} onPress={this.props.endWalking}>
-            <BackButtonIcon name='chevron-left'/>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navigatebuttonContainer} onPress={this.props.startNavigate}>
-            <Text style={styles.navigateText}>Navigate me</Text>
-        </TouchableOpacity>
-        </View>
+        <>
+        {this.state.seeList?
+          <>
+          <TouchableOpacity style={styles.backbuttonContainer} onPress={()=>this.setState({seeList:false, listIDs:[]})}>
+              <BackButtonIcon name='chevron-left'/>
+          </TouchableOpacity>
+          <View style={styles.containerList}>
+          <VenueList listofAR={this.state.listIDs}/>
+          </View>
+          </>
+          :
+          <View style={styles.container}>
+          <GraphicsView
+            style={styles.containerFlex}
+            onContextCreate={this.onContextCreate}
+            onRender={this.onRender}
+            onResize={this.onResize}
+            isArEnabled
+            isArCameraStateEnabled
+          />
+          {this.state.navigate?
+            <>
+            <TouchableOpacity style={styles.leftNavigate} onPress={()=>{this.setState({seeList:true, listIDs:left})}}>
+                <Text style={{...styles.navigateText, color:Colors.whiteColor}}>{left.length}</Text>
+                <Icon name='arrow-left-bold' type='material-community' color={Colors.whiteColor}/>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.rightNavigate} onPress={()=>{this.setState({seeList:true, listIDs:right})}}>
+                <Text style={{...styles.navigateText, color:Colors.whiteColor}}>{right.length}</Text>
+                <Icon name='arrow-right-bold' type='material-community' color={Colors.whiteColor}/>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.topNavigate} onPress={()=>{this.setState({seeList:true, listIDs:up})}}>
+                <Text style={{...styles.navigateText, color:Colors.whiteColor}}>{up.length}</Text>
+                <Icon name='arrow-up-bold' type='material-community' color={Colors.whiteColor}/>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.navigatebuttonContainer} onPress={()=>{this.setState({navigate:false})}}>
+                <Text style={{...styles.navigateText, color:Colors.heartColor}}>Close navigate</Text>
+            </TouchableOpacity>
+            </>
+            :
+            <>
+            <TouchableOpacity style={styles.backbuttonContainer} onPress={this.props.endWalking}>
+                <BackButtonIconWhite name='chevron-left'/>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.navigatebuttonContainer} onPress={()=>{this.setState({navigate:true})}}>
+                <Text style={styles.navigateText}>Navigate me</Text>
+            </TouchableOpacity>
+            </>
+          }
+          </View>
+        }
+        </>
       }
       </>
     )
@@ -64,6 +107,12 @@ export default class ARCosmo extends React.Component {
       this.setState({
         errorMessage: 'Permission to access location was denied',
       })
+    } else {
+      Expo.Location.watchHeadingAsync((obj)=>{
+        let heading = obj.magHeading
+        this.setState({heading:heading})
+      }
+      )
     }
     let location = await Location.getCurrentPositionAsync({});
     let heading = await Location.getHeadingAsync({})
@@ -79,13 +128,20 @@ export default class ARCosmo extends React.Component {
 
   ////// get bearing direction between point 1 and point 2
   getBearing = (latD2, lonD2, arDistance) => {
-    const headingCorrection = -105*Math.PI/180
+
     const [lat1, lon1, lat2, lon2] = [this.state.latitude*Math.PI/180, this.state.longitude*Math.PI/180, latD2*Math.PI/180, lonD2*Math.PI/180]
+    // const [lat1, lon1, lat2, lon2] = [51.522308*Math.PI/180, -0.118639*Math.PI/180, latD2*Math.PI/180, lonD2*Math.PI/180]
     const y= Math.sin(lon2-lon1)*Math.cos(lat2)
     const x= Math.cos(lat1)*Math.sin(lat2)-Math.sin(lat1)*Math.cos(lat2)*Math.cos(lon2-lon1)
-    const bearing = Math.atan2(y,x)
-    const bearingD = bearing*180/Math.PI
-    const correction = bearing
+    let bearing = Math.atan2(y,x)
+    if (bearing<0) {bearing += 2*Math.PI}
+    let correction
+    if (this.props.facingNorth) {
+      correction = bearing
+    } else {
+      correction = bearing - this.state.heading*Math.PI/180
+    }
+    // const headingCorrection = -105*Math.PI/180
     // const correction = bearing - (this.state.heading*Math.PI/180+headingCorrection)
     console.log('x', Math.sin(correction), 'y', Math.cos(correction)*(-1))
     const ARx = Math.sin(correction)*arDistance
@@ -109,6 +165,33 @@ export default class ARCosmo extends React.Component {
   }
 
 
+  ///////////////get angles //////////
+  getBearingAngle = (latD2, lonD2) => {
+    const [lat1, lon1, lat2, lon2] = [this.state.latitude*Math.PI/180, this.state.longitude*Math.PI/180, latD2*Math.PI/180, lonD2*Math.PI/180]
+    const y= Math.sin(lon2-lon1)*Math.cos(lat2)
+    const x= Math.cos(lat1)*Math.sin(lat2)-Math.sin(lat1)*Math.cos(lat2)*Math.cos(lon2-lon1)
+    let bearing = Math.atan2(y,x)
+    if (bearing<0) {bearing += 2*Math.PI}
+    const correction = bearing*180/Math.PI - this.state.heading
+    return correction
+  }
+
+  ///////////number in each direction /////////////
+  getNavigateReading = () => {
+    const up=[]; const left=[]; const right=[];
+    this.props.venues.map(venue=>{
+      const bearingAngle = this.getBearingAngle(venue.latitude, venue.longitude)
+      if (bearingAngle>=315 || bearingAngle<=45) {
+        up.push(venue.id)
+      } else if (bearingAngle<=135){
+        right.push(venue.id)
+      } else if (bearingAngle>=225){
+        left.push(venue.id)
+      } else {}
+    })
+    return [up, right, left]
+  }
+
 ///////////////////////////////////////////////////////////// AR world ///////////////////////////////////////////////////////////////
 
   onContextCreate = async ({ gl, scale: pixelRatio, width, height }) => {
@@ -120,47 +203,73 @@ export default class ARCosmo extends React.Component {
     this.scene = new THREE.Scene()
     this.scene.background = new ThreeAR.BackgroundTexture(this.renderer)
     // EXPO: Now we make a camera that matches the device orientation. Ex: When we look down this camera will rotate to look down too!
-    this.camera = new ThreeAR.Camera(width, height, 0.01, 1000)
+    this.camera = new ThreeAR.Camera(width, height, 0.1, 1000)
 
     this.setupLights()
-    // rendering all words
+
+
+
     const minARSize = 1
     const maxARSize = 10
-    let arFence = 500
-    this.props.pins.map(pin=>{
-      if (this.props.pinsOn.includes(pin.id)){
-        const distance = this.getDistance(pin.latitude, pin.longitude)
-        if (distance<=arFence){
-          // const arDistance = maxARSize - distance/(arFence/(maxARSize-minARSize))
-          // fixed distance, could be adjusted later
-          const arDistance = 10
-          const [arX, arZ] = this.getBearing(pin.latitude, pin.longitude, arDistance)
-          this.createText(pin.title,arX,0,arZ,0.1)
-        } else {
-          //// long distance direction
-        }
-      }
-    })
+    let arFence = 50
 
-    //// testing field
-    this.rotates = []
-    objecttoRotate = this.createOctahedronBufferGeo(-0.4)
-    this.rotates.push(objecttoRotate)
-    objecttoRotate = this.createOctahedronBufferGeo(-0.6)
-    this.rotates.push(objecttoRotate)
+    // rendering private pins
+    // this.props.pins.map(pin=>{
+    //   if (this.props.pinsOn.includes(pin.id)){
+    //     const distance = this.getDistance(pin.latitude, pin.longitude)
+    //     const arDistance = distance * 1.75
+    //     if (distance<=arFence){
+    //       // const arDistance = maxARSize - distance/(arFence/(maxARSize-minARSize))
+    //       // fixed distance, could be adjusted later
+    //       const [arX, arZ] = this.getBearing(pin.latitude, pin.longitude, arDistance)
+    //       console.log(pin.title, arX, arZ, distance)
+    //       this.createText(pin.title,arX,0,arZ,0.5,Colors.whiteColor)
+    //     } else {
+    //       const [arX, arZ] = this.getBearing(pin.latitude, pin.longitude, arDistance)
+    //       console.log(pin.title, arX, arZ, distance)
+    //       this.createText(pin.title,arX,0,arZ,0.5,Colors.secondaryTintColor)
+    //     }
+    //   }
+    // })
 
+
+    /////rendering nearby venues
+    // this.props.venues.map(venue=>{
+    //   const distance = this.getDistance(venue.latitude, venue.longitude)
+    //   if (distance<20){
+    //     const arDistance = distance * 1.75
+    //     // const arDistance = 1
+    //     const [arX, arZ] = this.getBearing(venue.latitude, venue.longitude, arDistance)
+    //     console.log(venue.title, arX, arZ, distance)
+    //     this.createText(venue.title,arX,0,arZ,0.5,Colors.whiteColor)
+    //   } else {
+    //       //do no render
+    //   }
+    // })
+
+    this.createText('The Perseverance - Pub 3.6', -120, 0, 0, 0.5, Colors.whiteColor)
+
+    this.createText('Tuttis - Cafe 3.4', 0, 0, -20, 0.5, Colors.whiteColor)
+    this.createText('Conduit Coffee House - Cafe 3.5', 0, 0, 150, 0.5, Colors.whiteColor)
+    this.createText('@Lorenz, this is the cafe I told you about', 0, -1, -20, 0.5, Colors.heartColor)
+    this.createText('Lambs Conduit Street', 0, 0, -150, 0.5, Colors.secondaryTintColor)
+
+    // Rotating OctahedronBufferGeometry (for later)
+    this.rotateObject = this.createOctahedronBufferGeo(0,0,0)
   }
 
-  createOctahedronBufferGeo = (z) => {
+  createOctahedronBufferGeo = (x,y,z) => {
     // Make a cube - notice that each unit is 1 meter in real life, we will make our box 0.1 meters
     const geometry = new THREE.OctahedronBufferGeometry(0.1, 0)
     // Simple color material
     const material = new THREE.MeshPhongMaterial({
-      color: 0xff00ff,
+      color: 0x008093,
     })
     // Combine our geometry and material
     let cube = new THREE.Mesh(geometry, material)
     // Place the box 0.4 meters in front of us.
+    cube.position.x = x
+    cube.position.y = y
     cube.position.z = z
     // Add the cube to the scene
     this.scene.add(cube)
@@ -176,31 +285,30 @@ export default class ARCosmo extends React.Component {
   }
 
   onRender = (delta) => {
-    if (this.rotates.length!==0){
-      this.rotates.map(object=>{
-        object.rotation.x += 2 * delta
-        object.rotation.y += 1.5 * delta
-      })
+    // rotate code
+    if (this.rotateObject){
+      this.rotateObject.rotation.x += 2 * delta
+      this.rotateObject.rotation.y += 1.5 * delta
     }
     this.renderer.render(this.scene, this.camera)
   }
 
   ////// Text render component
-  createText = (text,x,y,z,size) => {
+  createText = (text,x,y,z,size,color) => {
     this.textMesh = new TextMesh()
     this.textMesh.rotation.y = Math.PI
     this.scene.add(this.textMesh)
-    this.textMesh.material = new THREE.MeshPhongMaterial({ color: 0x0000FF }) // color of text
+    this.textMesh.material = new THREE.MeshPhongMaterial({ color: color }) // color of text
     this.textMesh.update({
       text: text,
       font: require('./../assets/fonts/neue_haas_unica_pro_regular.json'),
       size: size, //Size of text
-      height: 0.075, //Thickness to extrude text
+      height: 0.1, //Thickness to extrude text
       curveSegments: 12, //Smoothness of curve
     });
     // Make text always face user to start with
-    const test = new THREE.Vector3(-x,0,-z)
-    this.textMesh.lookAt(test)
+    const facing = new THREE.Vector3(-x,0,-z)
+    this.textMesh.lookAt(facing)
     ExpoTHREE.utils.alignMesh(this.textMesh, { x:x, y:y, z:z })
   }
 
@@ -252,4 +360,41 @@ const styles = StyleSheet.create({
     paddingBottom:5,
     fontWeight:'bold'
   },
+  leftNavigate:{
+    position:'absolute',
+    top:200,
+    left:3,
+    height:80,
+    width:80,
+    borderRadius:40,
+    justifyContent:'center',
+    alignItems:'center',
+    backgroundColor:Colors.heartColor
+  },
+  rightNavigate:{
+    position:'absolute',
+    top:250,
+    right:3,
+    height:80,
+    width:80,
+    borderRadius:40,
+    justifyContent:'center',
+    alignItems:'center',
+    backgroundColor:Colors.heartColor
+  },
+  topNavigate:{
+    position:'absolute',
+    top:20,
+    left:'40%',
+    right:'50%',
+    height:80,
+    width:80,
+    borderRadius:40,
+    justifyContent:'center',
+    alignItems:'center',
+    backgroundColor:Colors.heartColor
+  },
+  containerList:{
+    marginTop:70
+  }
 })

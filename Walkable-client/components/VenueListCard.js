@@ -4,6 +4,7 @@ import { BackButtonIcon, NavigateButtonIcon } from './AppIcons';
 import Colors from '../constants/Colors';
 import { Card, Avatar, Badge, Icon, Rating } from 'react-native-elements'
 import API from './API'
+import SeedData from './../constants/RoadTestSearchNearByData'
 
 
 export default class VenueListCard extends React.Component {
@@ -25,21 +26,38 @@ export default class VenueListCard extends React.Component {
   }
 
   componentDidMount(){
-    API.getVenueDetail(this.props.foursquareID)
-      .then(data=>{console.log(data); return data.response.venue})
-      .then(venueInfo=>{this.setState({
+    // API.getVenueDetail(this.props.foursquareID)
+    //   .then(data=>{console.log(data); return data.response.venue})
+    //   .then(venueInfo=>{this.setState({
+    //     name:venueInfo.name,
+    //     category:venueInfo.categories[0].name,
+    //     price:(!!venueInfo.price && venueInfo.price.tier)*1,
+    //     reviews:(!!venueInfo.ratingSignals && venueInfo.ratingSignals)*1,
+    //     rating:(!!venueInfo.rating && venueInfo.rating)/8*5,
+    //     distance:10,
+    //     address:venueInfo.location.address,
+    //     photo:!!venueInfo.photos.groups[1]? `${venueInfo.photos.groups[1].items[0].prefix}300x500${venueInfo.photos.groups[1].items[0].suffix}`:this.state.photo,
+    //     openingHours:venueInfo.hours && venueInfo.hours.timeframes,
+    //     likes:venueInfo.likes.count,
+    //     tips:venueInfo.tips.groups[0].items
+    //   },()=>this.setState({loading:false}))})
+
+    if (SeedData.venueDetails[this.props.foursquareID]) {
+      const venueInfo = SeedData.venueDetails[this.props.foursquareID].response.venue
+      this.setState({
         name:venueInfo.name,
         category:venueInfo.categories[0].name,
         price:(!!venueInfo.price && venueInfo.price.tier)*1,
         reviews:(!!venueInfo.ratingSignals && venueInfo.ratingSignals)*1,
-        rating:(!!venueInfo.rating && venueInfo.rating)/8*5,
+        rating:(!!venueInfo.rating && venueInfo.rating)/10*5,
         distance:10,
         address:venueInfo.location.address,
         photo:!!venueInfo.photos.groups[1]? `${venueInfo.photos.groups[1].items[0].prefix}300x500${venueInfo.photos.groups[1].items[0].suffix}`:this.state.photo,
         openingHours:venueInfo.hours && venueInfo.hours.timeframes,
         likes:venueInfo.likes.count,
         tips:venueInfo.tips.groups[0].items
-      },()=>this.setState({loading:false}))})
+      },()=>this.setState({loading:false}))
+    }
   }
 
   render() {
