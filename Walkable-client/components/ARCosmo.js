@@ -17,6 +17,7 @@ export default class ARCosmo extends React.Component {
     location:null,
     longitude:null,
     latitude:null,
+    headingActive:null,
     heading:null,
     errorMessage: null,
     loading:true,
@@ -28,9 +29,9 @@ export default class ARCosmo extends React.Component {
   componentDidMount() {
     // Location async for location and heading
     this.getLocationAsync()
-
     THREE.suppressExpoWarnings(true)
     ThreeAR.suppressWarnings()
+    this.setState({loading:false})
   }
 
   render() {
@@ -39,16 +40,16 @@ export default class ARCosmo extends React.Component {
 
     return (
       <>
-      {this.state.loading? null:
+      {this.state.loading? <View style={styles.splashScreen}></View>:
         <>
         {this.state.seeList?
           <>
-          <TouchableOpacity style={styles.backbuttonContainer} onPress={()=>this.setState({seeList:false, listIDs:[]})}>
-              <BackButtonIcon name='chevron-left'/>
-          </TouchableOpacity>
           <View style={styles.containerList}>
-          <VenueList listofAR={this.state.listIDs}/>
+            <VenueList listofAR={this.state.listIDs}/>
           </View>
+          <TouchableOpacity style={styles.navigatebuttonContainer} onPress={()=>this.props.endWalking()}>
+              <Text style={{...styles.navigateText, color:Colors.heartColor}}>Close navigate</Text>
+          </TouchableOpacity>
           </>
           :
           <View style={styles.container}>
@@ -110,7 +111,7 @@ export default class ARCosmo extends React.Component {
     } else {
       Expo.Location.watchHeadingAsync((obj)=>{
         let heading = obj.magHeading
-        this.setState({heading:heading})
+        this.setState({headingActive:heading})
       }
       )
     }
@@ -121,7 +122,6 @@ export default class ARCosmo extends React.Component {
       location:location,
       longitude:location.coords.longitude,
       latitude:location.coords.latitude,
-      loading:false
     });
   }
 
@@ -167,13 +167,20 @@ export default class ARCosmo extends React.Component {
 
   ///////////////get angles //////////
   getBearingAngle = (latD2, lonD2) => {
+    let correction = 45 /// for demo day. too many laptops and wrong heading// take out or set to 0 for final commit
+    let realHeading = this.state.headingActive-correction
+    if (realHeading > 180) { realHeading = realHeading - 360}
+
     const [lat1, lon1, lat2, lon2] = [this.state.latitude*Math.PI/180, this.state.longitude*Math.PI/180, latD2*Math.PI/180, lonD2*Math.PI/180]
     const y= Math.sin(lon2-lon1)*Math.cos(lat2)
     const x= Math.cos(lat1)*Math.sin(lat2)-Math.sin(lat1)*Math.cos(lat2)*Math.cos(lon2-lon1)
     let bearing = Math.atan2(y,x)
-    if (bearing<0) {bearing += 2*Math.PI}
-    const correction = bearing*180/Math.PI - this.state.heading
-    return correction
+    // if (bearing<0) {bearing += 2*Math.PI}
+    let angle = bearing*180/Math.PI - realHeading
+    if (angle > 180) { angle = angle - 360 }
+    if (angle < -180) { angle = angle + 360 }
+
+    return angle
   }
 
   ///////////number in each direction /////////////
@@ -181,11 +188,11 @@ export default class ARCosmo extends React.Component {
     const up=[]; const left=[]; const right=[];
     this.props.venues.map(venue=>{
       const bearingAngle = this.getBearingAngle(venue.latitude, venue.longitude)
-      if (bearingAngle>=315 || bearingAngle<=45) {
+      if (bearingAngle>=-45 && bearingAngle<=45) {
         up.push(venue.id)
-      } else if (bearingAngle<=135){
+      } else if (bearingAngle>=45 && bearingAngle<=135){
         right.push(venue.id)
-      } else if (bearingAngle>=225){
+      } else if (bearingAngle<=-45 && bearingAngle>=-135){
         left.push(venue.id)
       } else {}
     })
@@ -214,26 +221,26 @@ export default class ARCosmo extends React.Component {
     let arFence = 50
 
     // rendering private pins
-    // this.props.pins.map(pin=>{
-    //   if (this.props.pinsOn.includes(pin.id)){
-    //     const distance = this.getDistance(pin.latitude, pin.longitude)
-    //     const arDistance = distance * 1.75
-    //     if (distance<=arFence){
-    //       // const arDistance = maxARSize - distance/(arFence/(maxARSize-minARSize))
-    //       // fixed distance, could be adjusted later
-    //       const [arX, arZ] = this.getBearing(pin.latitude, pin.longitude, arDistance)
-    //       console.log(pin.title, arX, arZ, distance)
-    //       this.createText(pin.title,arX,0,arZ,0.5,Colors.whiteColor)
-    //     } else {
-    //       const [arX, arZ] = this.getBearing(pin.latitude, pin.longitude, arDistance)
-    //       console.log(pin.title, arX, arZ, distance)
-    //       this.createText(pin.title,arX,0,arZ,0.5,Colors.secondaryTintColor)
-    //     }
-    //   }
-    // })
+    this.props.pins.map(pin=>{
+      if (this.props.pinsOn.includes(pin.id)){
+        const distance = this.getDistance(pin.latitude, pin.longitude)
+        const arDistance = distance * 1.75
+        if (distance<=arFence){
+          // const arDistance = maxARSize - distance/(arFence/(maxARSize-minARSize))
+          // fixed distance, could be adjusted later
+          const [arX, arZ] = this.getBearing(pin.latitude, pin.longitude, arDistance)
+          console.log(pin.title, arX, arZ, distance)
+          this.createText(pin.title,arX,0,arZ,0.5,Colors.whiteColor)
+        } else {
+          const [arX, arZ] = this.getBearing(pin.latitude, pin.longitude, arDistance)
+          console.log(pin.title, arX, arZ, distance)
+          this.createText(pin.title,arX,0,arZ,0.5,Colors.secondaryTintColor)
+        }
+      }
+    })
 
 
-    /////rendering nearby venues
+    /////rendering nearby venues /// out for demo day
     // this.props.venues.map(venue=>{
     //   const distance = this.getDistance(venue.latitude, venue.longitude)
     //   if (distance<20){
@@ -247,14 +254,10 @@ export default class ARCosmo extends React.Component {
     //   }
     // })
 
-    this.createText('The Perseverance - Pub 3.6', -120, 0, 0, 0.5, Colors.whiteColor)
+    /// rendering demo day project signs /// out for final project commit
+    this.createText('The Perseverance - Pub 3.6', 0, 0, -2, 0.5, Colors.whiteColor)
 
-    this.createText('Tuttis - Cafe 3.4', 0, 0, -20, 0.5, Colors.whiteColor)
-    this.createText('Conduit Coffee House - Cafe 3.5', 0, 0, 150, 0.5, Colors.whiteColor)
-    this.createText('@Lorenz, this is the cafe I told you about', 0, -1, -20, 0.5, Colors.heartColor)
-    this.createText('Lambs Conduit Street', 0, 0, -150, 0.5, Colors.secondaryTintColor)
-
-    // Rotating OctahedronBufferGeometry (for later)
+    // Rotating OctahedronBufferGeometry (for starting point)
     this.rotateObject = this.createOctahedronBufferGeo(0,0,0)
   }
 
@@ -328,6 +331,11 @@ export default class ARCosmo extends React.Component {
 ////////////////////////////////////////////////////// Styling ////////////////////////////////////////////////////////////////
 
 const styles = StyleSheet.create({
+  splashScreen:{
+    height:'100%',
+    width:'100%',
+    backgroundColor:'pink'
+  },
   container:{
     flex:1,
     justifyContent:'flex-end',
@@ -395,6 +403,6 @@ const styles = StyleSheet.create({
     backgroundColor:Colors.heartColor
   },
   containerList:{
-    marginTop:70
+    marginTop:5
   }
 })

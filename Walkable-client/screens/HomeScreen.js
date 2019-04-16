@@ -33,6 +33,7 @@ export default class HomeScreen extends React.Component {
 
   render() {
     ///for street testing purposes. rendering the seeddata
+    //Seeded data, can be replaced with any API fetch
     const venues = Object.values(SeedData.searchNearbyResponse.response.venues).map(info=>{
       return {
         id:info.id,
@@ -61,6 +62,7 @@ export default class HomeScreen extends React.Component {
             facingNorth={this.state.faceNorth}
             venues={venues}
             venueIDs={venueIDs}
+            endWalking={this.endWalking}
           />
         }
         {!this.state.navigateStart && !this.state.walkStart &&
@@ -82,7 +84,7 @@ const styles = StyleSheet.create({
     flex:1,
     flexDirection:'column',
     justifyContent: 'center',
-    backgroundColor:Colors.secondaryTintColor,
+    backgroundColor:Colors.tintColor,
     alignItems: 'stretch',
   },
 })

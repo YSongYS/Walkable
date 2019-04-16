@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, Platform, TouchableWithoutFeedback, TouchableHighlight, Keyboard, TouchableOpacity, Modal, Alert } from 'react-native';
+import { View, Text, StyleSheet, Platform, TouchableWithoutFeedback, TouchableHighlight, Keyboard, TouchableOpacity, Modal, Alert, KeyboardAvoidingView } from 'react-native';
 import { Constants, Location, Permissions } from 'expo';
 import MapView, { Marker } from 'react-native-maps';
 import Colors from '../constants/Colors';
@@ -18,7 +18,9 @@ export default class CreatePinForm extends React.Component {
     pinLatitude:0,
     title:null,
     description:null,
-    invalidEntry:true
+    invalidEntry:true,
+    formScroll:365,
+    formBorder:Colors.secondaryTintColor
   }
 
   componentWillMount(){
@@ -58,17 +60,27 @@ export default class CreatePinForm extends React.Component {
         latitude:this.state.pinLatitude,
         longitude:this.state.pinLongitude,
       })
-      // Alert.alert('Success', 'Your Headsup Pin has been created!',
-      // [{text: 'Add another', onPress: ()=>{}},
-      // {text: 'See my pins', onPress: ()=>{}}]
-      // )
-      // console.log(this.state.pinLatitude, this.state.pinLongitude, this.props.userId)
+      this.setState({
+        title:null,
+        description:null,
+        pinLatitude:this.state.latitude,
+        pinLongitude:this.state.longitude,
+      })
+      Alert.alert('Success', 'Your Headsup Pin has been created!',
+      [{text: 'Add another', onPress: ()=>{}},
+      {text: 'See my pins', onPress: this.props.goToProfile}]
+      )
     }
+  }
+
+  handleKeyboard = () => {
+    Keyboard.dismiss()
+    this.setState({formScroll:365, formBorder:Colors.secondaryTintColor})
   }
 
   render(){
     return(
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <TouchableWithoutFeedback onPress={this.handleKeyboard} accessible={false}>
       <View style={styles.pageContainer}>
       <View style={styles.mapContainer}>
         <MapView
@@ -93,18 +105,20 @@ export default class CreatePinForm extends React.Component {
         </MapView>
       </View>
       <View style={styles.banner}></View>
-      <View style={styles.formContainer}>
+      <View style={{...styles.formContainer, top:this.state.formScroll, borderColor:this.state.formBorder}}>
         <Input
           label='Title'
+          value={this.state.title}
           labelStyle={styles.inputStyle}
           inputStyle={styles.inputStyle}
-          onChangeText={text=>this.setState({title:text})}
+          onChangeText={text=>this.setState({title:text, formScroll:200, formBorder:Colors.tintColor})}
         />
         <Input
           label='Description'
+          value={this.state.description}
           labelStyle={styles.inputStyle}
           inputStyle={styles.inputStyle}
-          onChangeText={text=>this.setState({description:text})}
+          onChangeText={text=>this.setState({description:text, formScroll:200, formBorder:Colors.tintColor})}
         />
       </View>
       <TouchableOpacity onPress={this.submitEntry} style={styles.fakeButton}>
@@ -130,7 +144,9 @@ const styles = StyleSheet.create({
     width:'100%',
   },
   formContainer: {
+    position:'absolute',
     marginTop:40,
+    paddingBottom:20,
     width:'80%',
     // backgroundColor: 'rgba(255, 255, 255, 0.6)',
     borderRadius:10,
@@ -138,7 +154,9 @@ const styles = StyleSheet.create({
     paddingLeft:10,
     paddingRight:10,
     paddingTop:20,
-    justifyContent:'space-between'
+    justifyContent:'space-between',
+    backgroundColor:Colors.secondaryTintColor,
+    borderWidth:1.5,
   },
   inputStyle:{
     color:Colors.whiteColor,
@@ -152,8 +170,9 @@ const styles = StyleSheet.create({
     backgroundColor:Colors.tintColor,
   },
   fakeButton: {
+    position:'absolute',
+    bottom:20,
     width:80,
-    marginTop: 25,
     height:80,
     flexDirection:'column',
     alignItems:'center',

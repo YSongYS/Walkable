@@ -11,8 +11,8 @@ const searchNearby = () =>{
     client_id:client_id,
     client_secret:client_secret,
     v:20190413,
-    ll:"51.522374,-0.118763",
-    radius:100,
+    ll:"51.520316,-0.087573",
+    radius:500,
     limit:5000,
     llAcc: 10,
     altAcc:10

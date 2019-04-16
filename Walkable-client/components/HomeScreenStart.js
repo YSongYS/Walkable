@@ -19,13 +19,13 @@ export default class HomeScreenStart extends React.Component {
           <View style={styles.modeSelectionContainer}>
               <TouchableOpacity
                 onPress={()=>this.props.faceNorth(true)}
-                style={{...styles.fakeButton, backgroundColor: this.props.facingNorth? Colors.tintColor: Colors.tabIconDefault}}
+                style={{...styles.fakeButton, borderColor:Colors.whiteColor, borderBottomWidth: this.props.facingNorth? 1: 0, fontWeight: this.props.facingNorth? 'bold': 'normal'}}
               >
                 <Text style={styles.fakeButtonText}>North</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={()=>this.props.faceNorth(false)}
-                style={{...styles.fakeButton, backgroundColor: this.props.facingNorth? Colors.tabIconDefault: Colors.tintColor}}
+                style={{...styles.fakeButton, borderColor:Colors.whiteColor, borderBottomWidth: this.props.facingNorth? 0: 1, fontWeight: this.props.facingNorth? 'normal':'bold'}}
               >
                 <Text style={styles.fakeButtonText}>Random</Text>
               </TouchableOpacity>
@@ -69,12 +69,13 @@ const styles = StyleSheet.create({
   },
   slogan:{
     textAlign:'center',
-    marginTop:20,
+    marginTop:30,
     // backgroundColor:'blue',
     fontSize:32,
     color:Colors.whiteColor
   },
   modeSelectionContainer:{
+    marginTop:10,
     width:'60%',
     flexDirection:'row',
     justifyContent:'space-between',

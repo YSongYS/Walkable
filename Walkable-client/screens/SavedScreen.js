@@ -11,13 +11,13 @@ export default class SavedScreen extends React.Component {
   };
 
 // <VenueList userId={this.props.screenProps.userId} savedList={true}/>
-// <GetOrientation />
+
 
   render() {
 
     return (
       <View style={styles.container}>
-
+<GetOrientation />
       </View>
     )
   }

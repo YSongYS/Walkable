@@ -1,6 +1,6 @@
 const client_id = "BRVTREXC14M4LQBIHPC1QHENPTYM4W2FTO0ODJHKD21WKLZ3"
 const client_secret = "ART21GNEGJS51MELACSULCH2GUSICZGPNQPPNS5VCOSRLYG5"
-const base_url = 'http://9a90a16a.ngrok.io'
+const base_url = 'http://bb08a18f.ngrok.io '
 
 const searchNearby = (lon, lat, radius, limit) =>{
   const baseURL= "https://api.foursquare.com/v2/venues/search?"
