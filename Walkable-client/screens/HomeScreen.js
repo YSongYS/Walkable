@@ -55,6 +55,7 @@ export default class HomeScreen extends React.Component {
         }
         {!this.state.navigateStart && this.state.walkStart &&
           <ARCosmo
+            userId={this.props.screenProps.userId}
             endWalking={this.endWalking}
             startNavigate={this.startNavigate}
             pins={this.props.screenProps.pins}
@@ -63,6 +64,7 @@ export default class HomeScreen extends React.Component {
             venues={venues}
             venueIDs={venueIDs}
             endWalking={this.endWalking}
+            toggleAppLike={this.props.screenProps.toggleAppLike}
           />
         }
         {!this.state.navigateStart && !this.state.walkStart &&

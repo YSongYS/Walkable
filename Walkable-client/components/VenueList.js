@@ -46,6 +46,7 @@ export default class VenueList extends React.Component {
   }
 
   updateBackendLike = (unlike, foursquare_id) => {
+    this.props.toggleAppLike(foursquare_id)
     if (unlike) {
       // can add a delete message later after delete
       API.deleteFavorite(this.props.userId, foursquare_id)

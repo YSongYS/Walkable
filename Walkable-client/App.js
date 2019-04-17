@@ -14,9 +14,10 @@ export default class App extends React.Component {
     loggedIn:true, ///intialize with fale, now true for testing
     signedUp: true, ///intialize with true
     userId: 1, ///initialize with undefined, now 1 for testing
-    userName:'Song',
+    userName:'Song', ///initialize with undefined, now song for testing
     pins:[],
-    pinsOn:[]
+    pinsOn:[],
+    likedIDs:[]
   };
 
 ///// comment out for actually log in senario
@@ -24,8 +25,12 @@ export default class App extends React.Component {
     API.getPins(this.state.userId)
       .then(pins=>this.setState({
         pins:[...pins],
-        pinsOn:[27]
         // pinsOn:pins.map(pin=>pin.id)
+      }))
+
+    API.getFavorites(this.props.userId)
+      .then(favorites=>this.setState({
+        likedIDs:[...favorites]
       }))
   }
 
@@ -85,6 +90,19 @@ export default class App extends React.Component {
     }
   }
 
+  toggleAppLike = (venueID) => {
+    if (this.state.likedIDs.includes(venueID)){
+      this.setState({
+        likedIDs: this.state.likedIDs.filter((id)=>!(id===venueID))
+      })
+    }
+    else {
+      this.setState({
+        likedIDs: [...this.state.likedIDs, venueID]
+      })
+    }
+  }
+
   render() {
     if (!this.state.isLoadingComplete && !this.props.skipLoadingScreen) {
       return (
@@ -121,6 +139,8 @@ export default class App extends React.Component {
             createPin:this.createPin,
             togglePinOnOff:this.togglePinOnOff,
             toggleAllPins:this.toggleAllPins,
+            toggleAppLike:this.toggleAppLike,
+            appLikedIDs:this.state.likedIDs
           }} />
         </View>
       );

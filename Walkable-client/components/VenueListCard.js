@@ -43,7 +43,9 @@ export default class VenueListCard extends React.Component {
     //   },()=>this.setState({loading:false}))})
 
     if (SeedData.venueDetails[this.props.foursquareID]) {
+
       const venueInfo = SeedData.venueDetails[this.props.foursquareID].response.venue
+      
       this.setState({
         name:venueInfo.name,
         category:venueInfo.categories[0] && venueInfo.categories[0].name,

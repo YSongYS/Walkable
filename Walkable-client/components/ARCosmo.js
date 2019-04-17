@@ -45,7 +45,7 @@ export default class ARCosmo extends React.Component {
         {this.state.seeList?
           <>
           <View style={styles.containerList}>
-            <VenueList listofAR={this.state.listIDs}/>
+            <VenueList listofAR={this.state.listIDs} userId={this.props.userId} toggleAppLike={this.props.toggleAppLike}/>
           </View>
           <TouchableOpacity style={styles.navigatebuttonContainer} onPress={()=>this.props.endWalking()}>
               <Text style={{...styles.navigateText, color:Colors.heartColor}}>Close navigate</Text>
@@ -239,7 +239,6 @@ export default class ARCosmo extends React.Component {
       }
     })
 
-
     /////rendering nearby venues /// out for demo day
     // this.props.venues.map(venue=>{
     //   const distance = this.getDistance(venue.latitude, venue.longitude)
@@ -255,7 +254,20 @@ export default class ARCosmo extends React.Component {
     // })
 
     /// rendering demo day project signs /// out for final project commit
-    this.createText('The Perseverance - Pub 3.6', 0, 0, -2, 0.5, Colors.whiteColor)
+    this.createText('Front', 0, 0, -60, 0.3, Colors.whiteColor)
+    this.createText('FrontSRight', 1.5, 0, -40, 0.2, Colors.whiteColor)
+    this.createText('FrontRight', 3, 1, -20, 0.2, Colors.whiteColor)
+    this.createText('UpperRight', 5, 0, -4, 0.2, Colors.whiteColor)
+    this.createText('MidRight', 6, -1, -3, 0.2, Colors.whiteColor)
+    this.createText('LowerRight', 30, 0, -0.5, 0.2, Colors.whiteColor)
+    this.createText('BehindRight', 20, 0, 1, 0.2, Colors.whiteColor)
+
+    this.createText('FrontSLeft', -1.5, 1, -40, 0.2, Colors.whiteColor)
+    this.createText('FrontLeft', -3, 0, -20, 0.2, Colors.whiteColor)
+    this.createText('UpperLeft', -5, 1, -4, 0.2, Colors.whiteColor)
+    this.createText('MidLeft', -6, 0, -3, 0.2, Colors.whiteColor)
+    this.createText('LowerLeft', -30, 0, -0.5, 0.2, Colors.whiteColor)
+
 
     // Rotating OctahedronBufferGeometry (for starting point)
     this.rotateObject = this.createOctahedronBufferGeo(0,0,0)
@@ -263,7 +275,7 @@ export default class ARCosmo extends React.Component {
 
   createOctahedronBufferGeo = (x,y,z) => {
     // Make a cube - notice that each unit is 1 meter in real life, we will make our box 0.1 meters
-    const geometry = new THREE.OctahedronBufferGeometry(0.1, 0)
+    const geometry = new THREE.OctahedronBufferGeometry(0.15, 0)
     // Simple color material
     const material = new THREE.MeshPhongMaterial({
       color: 0x008093,
@@ -297,7 +309,7 @@ export default class ARCosmo extends React.Component {
   }
 
   ////// Text render component
-  createText = (text,x,y,z,size,color) => {
+  createText = (text,x,y,z,size,color,facingX,facingZ) => {
     this.textMesh = new TextMesh()
     this.textMesh.rotation.y = Math.PI
     this.scene.add(this.textMesh)
@@ -310,7 +322,10 @@ export default class ARCosmo extends React.Component {
       curveSegments: 12, //Smoothness of curve
     });
     // Make text always face user to start with
-    const facing = new THREE.Vector3(-x,0,-z)
+    let facing
+    if (facingX) {facing = new THREE.Vector3(-facingX,0,-facingZ)}
+    else {facing = new THREE.Vector3(-x,0,-z)}
+
     this.textMesh.lookAt(facing)
     ExpoTHREE.utils.alignMesh(this.textMesh, { x:x, y:y, z:z })
   }
@@ -322,7 +337,7 @@ export default class ARCosmo extends React.Component {
     this.scene.add(light)
     /// Light shining from z and y direction, x direction dark
     let lighta = new THREE.PointLight(0xffffff, 1.5)
-    lighta.position.set(0, 100, 90)
+    lighta.position.set(20, 100, 90)
     this.scene.add(lighta)
   }
 
@@ -403,6 +418,6 @@ const styles = StyleSheet.create({
     backgroundColor:Colors.heartColor
   },
   containerList:{
-    marginTop:5
+    marginTop:0
   }
 })
