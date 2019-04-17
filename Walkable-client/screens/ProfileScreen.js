@@ -9,7 +9,6 @@ export default class ProfileScreen extends React.Component {
   };
 
   render() {
-    console.log(this.props.screenProps.userName, this.props.screenProps.pins)
     return(
       <ScrollView>
       <View style={styles.container}>

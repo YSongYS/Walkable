@@ -19,6 +19,7 @@ export default class ARCosmo extends React.Component {
     latitude:null,
     headingActive:null,
     heading:null,
+    headingCorrection:-45,
     errorMessage: null,
     loading:true,
     navigate:false,
@@ -45,7 +46,12 @@ export default class ARCosmo extends React.Component {
         {this.state.seeList?
           <>
           <View style={styles.containerList}>
-            <VenueList listofAR={this.state.listIDs} userId={this.props.userId} toggleAppLike={this.props.toggleAppLike}/>
+            <VenueList
+              listofAR={this.state.listIDs}
+              userId={this.props.userId}
+              toggleLike={this.props.toggleLike}
+              likedIDs={this.props.likedIDs}
+            />
           </View>
           <TouchableOpacity style={styles.navigatebuttonContainer} onPress={()=>this.props.endWalking()}>
               <Text style={{...styles.navigateText, color:Colors.heartColor}}>Close navigate</Text>
@@ -135,17 +141,14 @@ export default class ARCosmo extends React.Component {
     const x= Math.cos(lat1)*Math.sin(lat2)-Math.sin(lat1)*Math.cos(lat2)*Math.cos(lon2-lon1)
     let bearing = Math.atan2(y,x)
     if (bearing<0) {bearing += 2*Math.PI}
-    let correction
+    let angleRadians
     if (this.props.facingNorth) {
-      correction = bearing
+      angleRadians = bearing
     } else {
-      correction = bearing - this.state.heading*Math.PI/180
+      angleRadians = bearing - (this.state.headingActive+this.state.headingCorrection)*Math.PI/180
     }
-    // const headingCorrection = -105*Math.PI/180
-    // const correction = bearing - (this.state.heading*Math.PI/180+headingCorrection)
-    console.log('x', Math.sin(correction), 'y', Math.cos(correction)*(-1))
-    const ARx = Math.sin(correction)*arDistance
-    const ARz = Math.cos(correction)*arDistance*(-1)
+    const ARx = Math.sin(angleRadians)*arDistance
+    const ARz = Math.cos(angleRadians)*arDistance*(-1)
     return [ARx, ARz]
   }
 
@@ -167,8 +170,7 @@ export default class ARCosmo extends React.Component {
 
   ///////////////get angles //////////
   getBearingAngle = (latD2, lonD2) => {
-    let correction = 45 /// for demo day. too many laptops and wrong heading// take out or set to 0 for final commit
-    let realHeading = this.state.headingActive-correction
+    let realHeading = this.state.headingActive+this.state.headingCorrection
     if (realHeading > 180) { realHeading = realHeading - 360}
 
     const [lat1, lon1, lat2, lon2] = [this.state.latitude*Math.PI/180, this.state.longitude*Math.PI/180, latD2*Math.PI/180, lonD2*Math.PI/180]
@@ -199,6 +201,18 @@ export default class ARCosmo extends React.Component {
     return [up, right, left]
   }
 
+  ///////////weird Text distance /////////////
+  weirdTextDistance = (x, z, arDistance) => {
+    const ratioValue = Math.abs(x/z)
+    const xValue = Math.sqrt(ratioValue * arDistance)
+    const xDistance = xValue * (x/Math.abs(x))
+
+    const zValue = xValue/ratioValue
+    const zDistance = zValue * (z/Math.abs(z))
+
+    return [xDistance, zDistance]
+  }
+
 ///////////////////////////////////////////////////////////// AR world ///////////////////////////////////////////////////////////////
 
   onContextCreate = async ({ gl, scale: pixelRatio, width, height }) => {
@@ -218,23 +232,23 @@ export default class ARCosmo extends React.Component {
 
     const minARSize = 1
     const maxARSize = 10
-    let arFence = 50
+    let arFence = 20
 
     // rendering private pins
     this.props.pins.map(pin=>{
       if (this.props.pinsOn.includes(pin.id)){
         const distance = this.getDistance(pin.latitude, pin.longitude)
-        const arDistance = distance * 1.75
+        const arDistance = 200
         if (distance<=arFence){
           // const arDistance = maxARSize - distance/(arFence/(maxARSize-minARSize))
           // fixed distance, could be adjusted later
-          const [arX, arZ] = this.getBearing(pin.latitude, pin.longitude, arDistance)
-          console.log(pin.title, arX, arZ, distance)
-          this.createText(pin.title,arX,0,arZ,0.5,Colors.whiteColor)
+          const [arRX, arRZ] = this.getBearing(pin.latitude, pin.longitude, 1)
+          const [arX, arZ] = this.weirdTextDistance(arRX, arRZ, arDistance)
+          this.createText(pin.title,arX,2,arZ,0.5,Colors.secondaryTintColor)
         } else {
-          const [arX, arZ] = this.getBearing(pin.latitude, pin.longitude, arDistance)
-          console.log(pin.title, arX, arZ, distance)
-          this.createText(pin.title,arX,0,arZ,0.5,Colors.secondaryTintColor)
+          const [arRX, arRZ] = this.getBearing(pin.latitude, pin.longitude, 1)
+          const [arX, arZ] = this.weirdTextDistance(arRX, arRZ, arDistance)
+          this.createText(pin.title,arX,2,arZ,0.5,Colors.secondaryTintColor)
         }
       }
     })

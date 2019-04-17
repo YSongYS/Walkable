@@ -11,10 +11,10 @@ console.disableYellowBox = true;
 export default class App extends React.Component {
   state = {
     isLoadingComplete: false,
-    loggedIn:true, ///intialize with fale, now true for testing
+    loggedIn: true, ///intialize with fale, now true for testing
     signedUp: true, ///intialize with true
     userId: 1, ///initialize with undefined, now 1 for testing
-    userName:'Song', ///initialize with undefined, now song for testing
+    userName: 'Song', ///initialize with undefined, now song for testing
     pins:[],
     pinsOn:[],
     likedIDs:[]
@@ -22,13 +22,17 @@ export default class App extends React.Component {
 
 ///// comment out for actually log in senario
   componentDidMount(){
+    this.fetchBackendData()
+  }
+
+  fetchBackendData = () => {
     API.getPins(this.state.userId)
       .then(pins=>this.setState({
         pins:[...pins],
         // pinsOn:pins.map(pin=>pin.id)
       }))
 
-    API.getFavorites(this.props.userId)
+    API.getFavorites(this.state.userId)
       .then(favorites=>this.setState({
         likedIDs:[...favorites]
       }))
@@ -37,7 +41,7 @@ export default class App extends React.Component {
   toggleSignupLogin = ()=>{
     this.setState({
       signedUp:!this.state.signedUp
-    })
+    },this.fetchBackendData)
   }
 
   loggingIntoApp = (userId, userName) => {
@@ -47,12 +51,7 @@ export default class App extends React.Component {
       signedUp: true,
       userId:userId,
       userName:userName
-    }, this.getAllPins)
-  }
-
-  getAllPins = () => {
-    API.getPins(this.state.userId)
-      .then(pins=>this.setState({pins:[...pins]}))
+    },this.fetchBackendData)
   }
 
   deletePin = (pinId) => {
@@ -83,10 +82,10 @@ export default class App extends React.Component {
 
   toggleAllPins = (value) => {
     if (value) {
-      this.setState({pinsOn: this.state.pins.map(pin=>pin.id)},()=>console.log(this.state.pinsOn))
+      this.setState({pinsOn: this.state.pins.map(pin=>pin.id)})
     }
     else {
-      this.setState({pinsOn: []},()=>console.log(this.state.pinsOn))
+      this.setState({pinsOn: []})
     }
   }
 
@@ -100,6 +99,35 @@ export default class App extends React.Component {
       this.setState({
         likedIDs: [...this.state.likedIDs, venueID]
       })
+    }
+  }
+
+  toggleLike = (venueID) => {
+    if (this.state.likedIDs.includes(venueID)){
+      this.setState({
+        likedIDs: this.state.likedIDs.filter((id)=>!(id===venueID))
+      }, ()=>this.updateBackendLike(true, venueID))
+    }
+    else {
+      this.setState({
+        likedIDs: [...this.state.likedIDs, venueID]
+      }, ()=>this.updateBackendLike(false, venueID))
+    }
+  }
+
+  updateBackendLike = (unlike, foursquare_id) => {
+    if (unlike) {
+      API.deleteFavorite(this.state.userId, foursquare_id)
+        .then(deletesuccess=>{
+            API.getFavorites(this.state.userId)
+              .then(favorites=>{this.setState({
+                likedIDs:[...favorites]
+              })})
+        })
+    }
+    else {
+      API.addFavorite(this.state.userId, foursquare_id)
+        .then(favorite=>console.log(favorite))
     }
   }
 
@@ -139,8 +167,8 @@ export default class App extends React.Component {
             createPin:this.createPin,
             togglePinOnOff:this.togglePinOnOff,
             toggleAllPins:this.toggleAllPins,
-            toggleAppLike:this.toggleAppLike,
-            appLikedIDs:this.state.likedIDs
+            toggleLike:this.toggleLike,
+            likedIDs:this.state.likedIDs
           }} />
         </View>
       );

@@ -29,7 +29,7 @@ export default class SignupForm extends React.Component {
   render(){
     return(
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <ImageBackground source={{uri: "https://i.lensdump.com/i/hAheZ.jpg"}} style={styles.pageContainer}>
+      <ImageBackground source={require('./../assets/images/LoginBack.jpg')} style={styles.pageContainer}>
         <View style={styles.formContainer}>
           <Input placeholder='Name' onChangeText={text=>this.setState({name:text})} />
           <Input placeholder='Email' onChangeText={text=>this.setState({email:text})} />

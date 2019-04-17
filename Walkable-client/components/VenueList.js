@@ -13,7 +13,6 @@ export default class VenueList extends React.Component {
 
   state = {
     venueIDs:[],
-    likedIDs:[],
     venueClicked:false,
     venueInfo:{},
   }
@@ -32,65 +31,9 @@ export default class VenueList extends React.Component {
     })
   }
 
-  toggleLike = (venueID) => {
-    if (this.state.likedIDs.includes(venueID)){
-      this.setState({
-        likedIDs: this.state.likedIDs.filter((id)=>!(id===venueID))
-      }, ()=>this.updateBackendLike(true, venueID))
-    }
-    else {
-      this.setState({
-        likedIDs: [...this.state.likedIDs, venueID]
-      }, ()=>this.updateBackendLike(false, venueID))
-    }
-  }
-
-  updateBackendLike = (unlike, foursquare_id) => {
-    this.props.toggleAppLike(foursquare_id)
-    if (unlike) {
-      // can add a delete message later after delete
-      API.deleteFavorite(this.props.userId, foursquare_id)
-        .then(deletesuccess=>{
-          if (deletesuccess && this.props.savedList) {
-            API.getFavorites(this.props.userId)
-              .then(favorites=>{this.setState({
-                likedIDs:[...favorites],
-                venueIDs:[...favorites]
-              })})
-          }
-          else if (deletesuccess && !this.props.savedList){
-            API.getFavorites(this.props.userId)
-              .then(favorites=>this.setState({likedIDs:[...favorites]}))
-          }
-        })
-    }
-    else {
-      API.addFavorite(this.props.userId, foursquare_id)
-        .then(favorite=>console.log(favorite))
-    }
-  }
-
-  componentDidMount(){
-    // savedList fetch favorites list, make liked and venue list the same
-    if (this.props.savedList) {
-      API.getFavorites(this.props.userId)
-        .then(favorites=>{this.setState({
-          likedIDs:[...favorites],
-          venueIDs:[...favorites]
-        })})
-    }
-    else {
-    // nearby list fetch nearby list, AND favorites list
-      this.setState({
-        venueIDs:[...this.props.listofAR]
-      })
-
-      API.getFavorites(this.props.userId)
-        .then(favorites=>this.setState({likedIDs:[...favorites]}))
-    }
-  }
-
   render() {
+    const venueIDs = this.props.savedList? [...this.props.likedIDs]:[...this.props.listofAR]
+
     return (
       <ScrollView>
       <View style={styles.container}>
@@ -98,17 +41,17 @@ export default class VenueList extends React.Component {
         <VenueDetailCard
           venueInfo={this.state.venueInfo}
           unshowVenue={this.unshowVenue}
-          userliked={this.state.likedIDs.includes(this.state.venueInfo.foursquareID)}
-          toggleLike={this.toggleLike}
+          userliked={this.props.likedIDs.includes(this.state.venueInfo.foursquareID)}
+          toggleLike={this.props.toggleLike}
         />
         :
         <View style={styles.container}>
-        {this.state.venueIDs.filter(venueID=>!!SeedData.venueDetails[venueID]).map(venueID=>{
+        {venueIDs.filter(venueID=>!!SeedData.venueDetails[venueID]).map(venueID=>{
           return (<VenueListCard
             foursquareID={venueID}
             showVenue={this.showVenue}
-            userliked={this.state.likedIDs.includes(venueID)}
-            toggleLike={this.toggleLike}
+            userliked={this.props.likedIDs.includes(venueID)}
+            toggleLike={this.props.toggleLike}
           />)
         }
         )}

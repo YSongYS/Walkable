@@ -2,8 +2,6 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import ARCosmo from './../components/ARCosmo';
 import HomeScreenStart from './../components/HomeScreenStart';
-import HomeScreenARWalk from './../components/HomeScreenARWalk';
-import HomeScreenARNavigate from './../components/HomeScreenARNavigate';
 import Colors from '../constants/Colors';
 import SeedData from './../constants/RoadTestSearchNearByData'
 
@@ -16,7 +14,7 @@ export default class HomeScreen extends React.Component {
   state = {
     walkStart:false,
     navigateStart:false,
-    faceNorth:true
+    faceNorth:false
   }
 
   startWalking = () => this.setState({walkStart:true,})
@@ -64,7 +62,8 @@ export default class HomeScreen extends React.Component {
             venues={venues}
             venueIDs={venueIDs}
             endWalking={this.endWalking}
-            toggleAppLike={this.props.screenProps.toggleAppLike}
+            toggleLike={this.props.screenProps.toggleLike}
+            likedIDs={this.props.screenProps.likedIDs}
           />
         }
         {!this.state.navigateStart && !this.state.walkStart &&

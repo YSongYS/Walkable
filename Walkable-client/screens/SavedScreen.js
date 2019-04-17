@@ -17,8 +17,8 @@ export default class SavedScreen extends React.Component {
         <VenueList
           userId={this.props.screenProps.userId}
           savedList={true}
-          toggleAppLike={this.props.screenProps.toggleAppLike}
-          appLikedIDs={this.props.screenProps.appLikedIDs}
+          toggleLike={this.props.screenProps.toggleLike}
+          likedIDs={this.props.screenProps.likedIDs}
         />
       </View>
     )
