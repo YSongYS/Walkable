@@ -15,8 +15,8 @@ export default class ARCosmo extends React.Component {
 
   state = {
     location:null,
-    longitude:null,
-    latitude:null,
+    longitude:-0.087576, ///for demo, default to null
+    latitude:51.520317, ///for demo, default to null
     headingActive:null,
     heading:null,
     headingCorrection:-45,
@@ -27,7 +27,7 @@ export default class ARCosmo extends React.Component {
     listIDs:[],
   }
 
-  componentDidMount() {
+  componentWillMount() {
     // Location async for location and heading
     this.getLocationAsync()
     THREE.suppressExpoWarnings(true)
@@ -125,27 +125,33 @@ export default class ARCosmo extends React.Component {
     let heading = await Location.getHeadingAsync({})
     this.setState({
       heading:heading.trueHeading,
+      headingCorrection:(83 + heading.trueHeading)*(-1),
       location:location,
-      longitude:location.coords.longitude,
-      latitude:location.coords.latitude,
+      // longitude:location.coords.longitude,
+      // latitude:location.coords.latitude,
+      // longitude:-0.087576,
+      // latitude:51.520317,
     });
   }
 
 
   ////// get bearing direction between point 1 and point 2
   getBearing = (latD2, lonD2, arDistance) => {
-
+    console.log(this.state.latitude, this.state.longitude)
     const [lat1, lon1, lat2, lon2] = [this.state.latitude*Math.PI/180, this.state.longitude*Math.PI/180, latD2*Math.PI/180, lonD2*Math.PI/180]
     // const [lat1, lon1, lat2, lon2] = [51.522308*Math.PI/180, -0.118639*Math.PI/180, latD2*Math.PI/180, lonD2*Math.PI/180]
     const y= Math.sin(lon2-lon1)*Math.cos(lat2)
     const x= Math.cos(lat1)*Math.sin(lat2)-Math.sin(lat1)*Math.cos(lat2)*Math.cos(lon2-lon1)
     let bearing = Math.atan2(y,x)
+    console.log(bearing)
     if (bearing<0) {bearing += 2*Math.PI}
     let angleRadians
     if (this.props.facingNorth) {
       angleRadians = bearing
+      console.log(angleRadians)
     } else {
-      angleRadians = bearing - (this.state.headingActive+this.state.headingCorrection)*Math.PI/180
+      angleRadians = bearing - (this.state.heading+this.state.headingCorrection)*Math.PI/180
+      console.log(angleRadians, this.state.heading, (this.state.heading+this.state.headingCorrection), (this.state.heading+this.state.headingCorrection)*Math.PI/180)
     }
     const ARx = Math.sin(angleRadians)*arDistance
     const ARz = Math.cos(angleRadians)*arDistance*(-1)
@@ -248,6 +254,7 @@ export default class ARCosmo extends React.Component {
         } else {
           const [arRX, arRZ] = this.getBearing(pin.latitude, pin.longitude, 1)
           const [arX, arZ] = this.weirdTextDistance(arRX, arRZ, arDistance)
+          console.log(pin.title, arX, arZ, arRX, arRZ)
           this.createText(pin.title,arX,2,arZ,0.5,Colors.secondaryTintColor)
         }
       }
@@ -268,23 +275,28 @@ export default class ARCosmo extends React.Component {
     // })
 
     /// rendering demo day project signs /// out for final project commit
-    this.createText('Front', 0, 0, -60, 0.3, Colors.whiteColor)
-    this.createText('FrontSRight', 1.5, 0, -40, 0.2, Colors.whiteColor)
-    this.createText('FrontRight', 3, 1, -20, 0.2, Colors.whiteColor)
-    this.createText('UpperRight', 5, 0, -4, 0.2, Colors.whiteColor)
-    this.createText('MidRight', 6, -1, -3, 0.2, Colors.whiteColor)
-    this.createText('LowerRight', 30, 0, -0.5, 0.2, Colors.whiteColor)
-    this.createText('BehindRight', 20, 0, 1, 0.2, Colors.whiteColor)
+    this.createText('Cantabile', 1, 0, -50, 0.3, Colors.whiteColor)
+    this.createText('BillHub', 3, 0, -20, 0.2, Colors.whiteColor)
+    // this.createText('FrontRight', 3, 1, -20, 0.2, Colors.whiteColor)
+    // this.createText('UpperRight', 5, 0, -4, 0.2, Colors.whiteColor)
+    this.createText('Midright', 6, -1, -3, 0.2, Colors.whiteColor)
+    this.createText('HUEman', 30, 0, -1, 0.2, Colors.whiteColor)
+    this.createText('MIXD', 20, 0, 1, 0.2, Colors.whiteColor)
+    this.createText('TRIO', 2, -1, 5, 0.2, Colors.whiteColor,0,1)
 
-    this.createText('FrontSLeft', -1.5, 1, -40, 0.2, Colors.whiteColor)
-    this.createText('FrontLeft', -3, 0, -20, 0.2, Colors.whiteColor)
-    this.createText('UpperLeft', -5, 1, -4, 0.2, Colors.whiteColor)
-    this.createText('MidLeft', -6, 0, -3, 0.2, Colors.whiteColor)
-    this.createText('LowerLeft', -30, 0, -0.5, 0.2, Colors.whiteColor)
+    this.createText('FrontSLeft', -1, 1, -45, 0.2, Colors.whiteColor)
+    this.createText('NEXT TBD', -3, -1, 1.5, 0.2, Colors.whiteColor,0,1)
+
+    // this.createText('FrontLeft', -3, 0, -20, 0.2, Colors.whiteColor)
+    // this.createText('UpperLeft', -5, 1, -4, 0.2, Colors.whiteColor)
+    // this.createText('MidLeft', -6, 0, -3, 0.2, Colors.whiteColor)
+    // this.createText('LowerLeft', -30, 0, -0.5, 0.2, Colors.whiteColor)
+     // this.createText('Headsup', 0, 0, 0, 0.3, Colors.whiteColor)
 
 
     // Rotating OctahedronBufferGeometry (for starting point)
     this.rotateObject = this.createOctahedronBufferGeo(0,0,0)
+    this.createText('HeadsUp', 0, -1, 5, 0.2, Colors.whiteColor,0,1)
   }
 
   createOctahedronBufferGeo = (x,y,z) => {

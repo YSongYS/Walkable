@@ -9,17 +9,17 @@ export default class SavedScreen extends React.Component {
   static navigationOptions = {
     title: 'Saved Venues',
   };
-// <GetOrientation />
 
+// <VenueList
+//   userId={this.props.screenProps.userId}
+//   savedList={true}
+//   toggleLike={this.props.screenProps.toggleLike}
+//   likedIDs={this.props.screenProps.likedIDs}
+// />
   render() {
     return (
       <View style={styles.container}>
-        <VenueList
-          userId={this.props.screenProps.userId}
-          savedList={true}
-          toggleLike={this.props.screenProps.toggleLike}
-          likedIDs={this.props.screenProps.likedIDs}
-        />
+<GetOrientation />
       </View>
     )
   }

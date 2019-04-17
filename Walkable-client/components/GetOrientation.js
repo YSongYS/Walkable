@@ -14,6 +14,8 @@ export default class GetLocation extends React.Component {
     longitude:null,
     latitude:null,
     heading:null,
+    headingActive:null,
+    headingCorrection:null,
     errorMessage: null,
     loading:true
   }
@@ -34,7 +36,7 @@ export default class GetLocation extends React.Component {
       /// this is continously watching, take it out to have just one value?
       Expo.Location.watchHeadingAsync((obj)=>{
         let heading = obj.magHeading
-        this.setState({heading:heading})
+        this.setState({headingActive:heading})
       }
       )
     }
@@ -45,6 +47,7 @@ export default class GetLocation extends React.Component {
     let heading = await Location.getHeadingAsync({})
     this.setState({
       heading:heading.trueHeading,
+      headingCorrection: (83 + heading.trueHeading)*(-1),
       location:location,
       longitude:location.coords.longitude,
       latitude:location.coords.latitude,
@@ -60,7 +63,7 @@ export default class GetLocation extends React.Component {
     const bearing = Math.atan2(y,x)
     const bearingD = bearing*180/Math.PI
     console.log(this.state.heading, headingCorrection, bearing)
-    const correction = bearing - (this.state.heading*Math.PI/180+headingCorrection)
+    const correction = bearing - (this.state.headingActive*Math.PI/180+headingCorrection)
     const ARx = Math.sin(correction)*fixD
     const ARz = Math.cos(correction)*fixD*(-1)
     console.log(ARx, ARz, bearingD)
@@ -69,8 +72,8 @@ export default class GetLocation extends React.Component {
 
   ///////////////get angles //////////
   getBearingAngle = (latD2, lonD2) => {
-    let correction = 45 /// for demo day. too many laptops and wrong heading
-    let realHeading = this.state.heading-correction
+    let correction = 0 /// for demo day. too many laptops and wrong heading
+    let realHeading = this.state.headingActive-correction
     if (realHeading > 180) { realHeading = realHeading - 360}
 
     const [lat1, lon1, lat2, lon2] = [this.state.latitude*Math.PI/180, this.state.longitude*Math.PI/180, latD2*Math.PI/180, lonD2*Math.PI/180]
@@ -114,6 +117,9 @@ export default class GetLocation extends React.Component {
       {this.state.loading? null:
         <View style={styles.pageContainer}>
         <Text style={{color:'white'}}> Heading: {this.state.heading}</Text>
+        <Text style={{color:'white'}}> ActiveHeading: {this.state.headingActive}</Text>
+        <Text style={{color:'white'}}> Correction: {this.state.headingCorrection}</Text>
+        <Text style={{color:'white'}}> CorrectedHeading: {this.state.headingCorrection + this.state.headingActive}</Text>
         <Text style={{color:'white'}}> Bearing: {angle}</Text>
         <Text style={{color:'white'}}> Direction: {direction}</Text>
         </View>
